@@ -19,6 +19,24 @@
       margin-bottom: 5px;
       margin-right: 5px;
       border: 1px solid black;
+            display: flex;
+            flex-direction: column;
+    }
+
+    #host-config {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 6px;
+        border-bottom: 1px solid #ccc;
+    }
+
+    #host-config input {
+        width: 120px;
+    }
+
+    #host-config .narrow-input {
+        width: 80px;
     }
 
     #right-side {
@@ -62,7 +80,14 @@
   <script src="../libs/message_pool.js"> </script>
 </head>
 <body>
-  <div id="canvas-container">  </div>
+    <div id="canvas-container">
+        <div id="host-config">
+            <label>Host: <input type="text" id="host-name" value=""></label>
+            <label>Port: <input type="number" id="host-port" value="0" class="narrow-input"></label>
+            <label>Buffer: <input type="number" id="buffer-size" value="100" class="narrow-input"></label>
+            <label>SSL: <input type="checkbox" id="ssl-enabled" checked></label>
+        </div>
+    </div>
 
   <div id="right-side">
     <div id="button-container">
@@ -114,6 +139,27 @@
     //myGlobal.mp.debug = true;
     const tp_as_str = document.getElementById("topic-data-as-string");
     tp_as_str.checked = false;
+    function getHostConfig() {
+        const host = document.getElementById("host-name").value;
+        const port = Number(document.getElementById("host-port").value);
+        const bufferSize = Number(document.getElementById("buffer-size").value);
+        const sslEnabled = document.getElementById("ssl-enabled").checked;
+        return {
+            host: host,
+            port: port,
+            bufferSize: bufferSize,
+            sslEnabled: sslEnabled
+        };
+    }
+    function makeHostParams(cfg) {
+        if (cfg.host === "") {
+            return "";
+        }
+        return "?host=" + encodeURIComponent(cfg.host)
+            + "&port=" + encodeURIComponent(String(cfg.port))
+            + "&ssl=" + encodeURIComponent(String(cfg.sslEnabled))
+            + "&size=" + encodeURIComponent(String(cfg.bufferSize));
+    }
     function updateClientList() {
         {
             const tmp = document.getElementById("client-table");
@@ -248,7 +294,11 @@
         checkClientList();
         var len = myGlobal.clientCount;
         var tabname = 'Client:' + len;
-        var new_w = window.open("./blockly_irsl.html", tabname);
+        var cfg = getHostConfig();
+        var new_w = window.open(
+            "./blockly_irsl.html" + makeHostParams(cfg),
+            tabname
+        );
         //console.log('close: ' + tabname);
         //checkClientList();
         //};
@@ -261,7 +311,11 @@
         var len = myGlobal.clientCount;
         var tabname = 'Maze:' + len;
         // add options
-        var new_w = window.open("./maze_game.html", tabname);
+        var cfg = getHostConfig();
+        var new_w = window.open(
+            "./maze_game.html" + makeHostParams(cfg),
+            tabname
+        );
         myGlobal.clients.set(tabname, new_w);
         myGlobal.clientCount += 1;
         updateClientList();
@@ -271,7 +325,11 @@
         var len = myGlobal.clientCount;
         var tabname = 'Pong:' + len;
         // add options
-        var new_w = window.open("./ping_pong_game.html", tabname);
+        var cfg = getHostConfig();
+        var new_w = window.open(
+            "./ping_pong_game.html" + makeHostParams(cfg),
+            tabname
+        );
         myGlobal.clients.set(tabname, new_w);
         myGlobal.clientCount += 1;
         updateClientList();
@@ -281,7 +339,12 @@
         var len = myGlobal.clientCount;
         var tabname = 'Sensor:' + len;
         // add options
-        var new_w = window.open("./mouse_sensor_client.html", tabname, "top=90,left=90,width=740,height=740,menubar=no,toolbar=no,location=no");
+        var cfg = getHostConfig();
+        var new_w = window.open(
+            "./mouse_sensor_client.html" + makeHostParams(cfg),
+            tabname,
+            "top=90,left=90,width=740,height=740,menubar=no,toolbar=no,location=no"
+        );
         myGlobal.clients.set(tabname, new_w);
         myGlobal.clientCount += 1;
         updateClientList();
@@ -291,7 +354,12 @@
         var len = myGlobal.clientCount;
         var tabname = 'Device:' + len;
         // add options
-        var new_w = window.open("./canvas_device_client.html", tabname, "top=70,left=70,width=740,height=740,menubar=no,toolbar=no,location=no");
+        var cfg = getHostConfig();
+        var new_w = window.open(
+            "./canvas_device_client.html" + makeHostParams(cfg),
+            tabname,
+            "top=70,left=70,width=740,height=740,menubar=no,toolbar=no,location=no"
+        );
         myGlobal.clients.set(tabname, new_w);
         myGlobal.clientCount += 1;
         updateClientList();
@@ -301,7 +369,12 @@
         var len = myGlobal.clientCount;
         var tabname = 'Device:' + len;
         // add options
-        var new_w = window.open("./msg_gui_client.html", tabname, "top=50,left=50,width=740,height=740,menubar=no,toolbar=no,location=no");
+        var cfg = getHostConfig();
+        var new_w = window.open(
+            "./msg_gui_client.html" + makeHostParams(cfg),
+            tabname,
+            "top=50,left=50,width=740,height=740,menubar=no,toolbar=no,location=no"
+        );
         myGlobal.clients.set(tabname, new_w);
         myGlobal.clientCount += 1;
         updateClientList();
