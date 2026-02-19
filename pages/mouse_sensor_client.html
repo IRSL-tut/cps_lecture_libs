@@ -4,24 +4,24 @@
     <meta charset="utf-8">
     <title>Sensor(Mouse)</title>
     <script src="../libs/message_pool.js"></script>
+    <script src="../libs/init_client.js"></script>
     <script>
-      window.addEventListener('DOMContentLoaded', () => {
-          let node_header = document.getElementById("node_header");
-          if (node_header) {
-              node_header.innerHTML += (' : ' + window.name);
+      document.addEventListener('DOMContentLoaded', (e) => {
+          let node_text = document.getElementById("node-title-text");
+          if (node_text) {
+              node_text.innerHTML = (' : ' + window.name);
           }
+          setupMessageBuffer(100);
       });
     </script>
   </head>
 
   <body onload="canvas_init()">
-    <H2><div id="node_header">Sensor (Mouse)</div></H2>
+    <H2><div id="node-title">Sensor (Mouse)</div><div id="node-title-text"></div></H2>
     <canvas id="canvas" width="640" height="480"
             style="border:1px solid #000000; background: #ffffe8; max-width: 100%; height: auto; max-height: 100%">
       このブラウザはHTML5のCanvas要素に対応していません。
     </canvas>
-    <script src="../libs/init_client.js"></script>
-    <script>setupMessageBuffer(100);</script>
     <script src="../libs/canvasevent.js"></script>
     <script>
       canvas_use_local_echo(false);

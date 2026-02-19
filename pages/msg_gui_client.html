@@ -9,17 +9,17 @@
     <script src="../libs/init_client.js"> </script>
     <script>
       document.addEventListener('DOMContentLoaded', (e) => {
+          let node_text = document.getElementById("node-title-text");
+          if (node_text) {
+              node_text.innerHTML = (' : ' + window.name);
+          }
           //console.log('loaded');
           setupMessageBuffer(20);
-          let node_header = document.getElementById("node_header");
-          if (node_header) {
-              node_header.innerHTML += (' : ' + window.name);
-          }
       });
     </script>
 </head>
 <body>
-  <H2><div id="node_header">Message GUI</div></H2>
+  <H2><div id="node-title">Message GUI</div><div id="node-title-text"></div></H2>
   <!-- publish -->
   Publishing a Topic
   <hr>

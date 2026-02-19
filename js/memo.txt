@@ -1,0 +1,91 @@
+##TODO
+
+- make ws_server.bat / ws_server.sh
+(download node / npm install ws)
+
+- make keys
+
+- Message GUI // -- display -- / -- https://xxxx to checkout --
+
+
+---
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
+openssl req -x509 -new -nodes -keyout key.pem -out cert.pem -days 365
+
+---
+// for ssl
+// openssl genrsa -out server.key 2048
+// openssl req -out server.csr -key server.key -new -subj "/C=JP/ST=Aichi/O=IRSL/CN=TUT"
+// openssl x509 -req -days 3650 -signkey server.key -in server.csr -out server.crt
+// openssl rsa -in server.key -text > key.pem
+// openssl x509 -inform PEM -in server.crt > cert.pem
+
+---
+if [ ! -e ${abs_dir}/userdir/server.key ]; then
+    openssl genrsa -out ${abs_dir}/userdir/server.key 2048
+fi
+
+if [ ! -e ${abs_dir}/userdir/server.crt ]; then
+    openssl req -out ${abs_dir}/userdir/server.csr -key ${abs_dir}/userdir/server.key -new -subj "/C=JP/ST=Aichi/O=IRSL/CN=${_COMMON_NAME}"
+    openssl x509 -req -days 3650 -signkey ${abs_dir}/userdir/server.key -in ${abs_dir}/userdir/server.csr -out ${abs_dir}/userdir/server.crt
+fi
+
+
+---
+$ openssl genrsa -aes128 -out sample.key 2048
+秘密鍵は、以下の情報で作成し、鍵の保護はAES-128を指定。
+
+鍵アルゴリズム … RSA
+鍵の長さ … 2048 bit
+パスフレーズ … （ここでは記載を省略）
+ApacheなどのWebサーバーで使う場合、起動時にパスワードが求められるのが嫌なら解除する方法も。
+
+$ openssl rsa -in sample.key -out sample.key
+最初からパスワードなしで作る場合は、こちらです（秘密鍵の保護指定がなくなる）。
+
+$ openssl genrsa -out sample.key 2048
+CSRの作成。
+
+$ openssl req -new -key sample.key -out sample.csr
+聞かれる情報は、こんな感じです。
+
+Country Name (2 letter code) [AU]:
+State or Province Name (full name) [Some-State]:
+Locality Name (eg, city) []:
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:
+Organizational Unit Name (eg, section) []:
+Common Name (e.g. server FQDN or YOUR name) []:
+Email Address []:
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+challenge passwordは、通常空欄のままにしておきます。それ以外は、適宜設定。
+
+今回、Common Nameのみ「hoge.com」と指定しておきました。
+
+$ Common Name (e.g. server FQDN or YOUR name) []:hoge.com
+Common Nameに「*.example.com」のように、「*」を含めたものにすると、ワイルドカード証明書になります。
+
+証明書への署名。通常は、次のようになります（有効期限は、365日にしています）。
+
+$ openssl x509 -req -days 365 -in sample.csr -signkey sample.key -out sample.crt
+確認。
+
+$ openssl x509 -text -in sample.crt --noout
+
+##
+
+subjectAltName = DNS:test.com, DNS:*.example.com, DNS:bar.com, IP:172.17.0.2
+ホスト名を書く場合は「DNS」で、IPアドレスで書く場合は「IP」で指定します。ワイルドカード（*）も使用可能です。
+
+これを、署名時に「-extfile」オプションで指定します。
+
+$ openssl x509 -req -days 365 -in sample.csr -signkey sample.key -out sample.crt -extfile subjectnames.txt
+確認。
+
+$ openssl x509 -text -in sample.crt --noout
+
+
+sample.key, sample.crt
