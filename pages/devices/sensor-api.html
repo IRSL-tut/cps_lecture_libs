@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mobile Sensor API Monitor</title>
+  <style>
+    :root {
+      --bg: #f5f2ed;
+      --card: #ffffff;
+      --ink: #1f1f1f;
+      --muted: #5b5b5b;
+      --accent: #2a6df4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Alegreya Sans", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(180deg, #eef3ff 0%, var(--bg) 45%);
+    }
+    header {
+      padding: 20px 16px 8px;
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      letter-spacing: 0.2px;
+    }
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .controls {
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    button {
+      border: 0;
+      background: var(--accent);
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+    button:disabled { opacity: 0.6; }
+    .status {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      padding: 8px 16px 20px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 6px 20px rgba(20, 20, 20, 0.08);
+    }
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+    .kv {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      row-gap: 6px;
+      column-gap: 6px;
+      font-size: 14px;
+    }
+    .label { color: var(--muted); }
+    .value { font-variant-numeric: tabular-nums; }
+    .note {
+      padding: 0 16px 16px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mobile Sensor API Monitor</h1>
+    <p class="sub">Uses the Generic Sensor API for accelerometer, gyroscope, and orientation.</p>
+  </header>
+
+  <div class="controls">
+    <button id="startBtn">Start Sensors</button>
+    <span class="status" id="status">Idle</span>
+  </div>
+
+  <section class="grid">
+    <div class="card">
+      <h2>Accelerometer</h2>
+      <div class="kv">
+        <div class="label">X</div><div class="value" id="accX">-</div>
+        <div class="label">Y</div><div class="value" id="accY">-</div>
+        <div class="label">Z</div><div class="value" id="accZ">-</div>
+        <div class="label">Timestamp</div><div class="value" id="accT">-</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Linear Acceleration</h2>
+      <div class="kv">
+        <div class="label">X</div><div class="value" id="linX">-</div>
+        <div class="label">Y</div><div class="value" id="linY">-</div>
+        <div class="label">Z</div><div class="value" id="linZ">-</div>
+        <div class="label">Timestamp</div><div class="value" id="linT">-</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Gyroscope</h2>
+      <div class="kv">
+        <div class="label">X</div><div class="value" id="gyroX">-</div>
+        <div class="label">Y</div><div class="value" id="gyroY">-</div>
+        <div class="label">Z</div><div class="value" id="gyroZ">-</div>
+        <div class="label">Timestamp</div><div class="value" id="gyroT">-</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Absolute Orientation</h2>
+      <div class="kv">
+        <div class="label">Quaternion</div><div class="value" id="absQuat">-</div>
+        <div class="label">Timestamp</div><div class="value" id="absT">-</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Relative Orientation</h2>
+      <div class="kv">
+        <div class="label">Quaternion</div><div class="value" id="relQuat">-</div>
+        <div class="label">Timestamp</div><div class="value" id="relT">-</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="note">
+    Requires HTTPS and a browser that supports the Generic Sensor API (Chrome/Edge on Android).
+  </div>
+
+  <script src="sensor-api.js"></script>
+</body>
+</html>
