@@ -79,6 +79,8 @@ function setupMessageBuffer(buffer_size=1, force_websocket=false)
     } else {
       myGlobal.connection_type = 'websocket(ssl)';
     }
+    myGlobal.connection_addr = wshost + ':' + wsport;
+    myGlobal.connection_url = ws_url;
   } else {
     myGlobal.opener = window.opener;
     myGlobal.BM = new BrowserMessage(myGlobal.opener, buffer_size);

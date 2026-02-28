@@ -9,17 +9,23 @@
     <script src="../libs/init_client.js"> </script>
     <script>
       document.addEventListener('DOMContentLoaded', (e) => {
+          setupMessageBuffer(20);
+          let title_str;
+          if ( myGlobal.connection_type == 'browser' ) {
+              title_str = (' : ' + window.name);
+          } else {
+              myGlobal.connection_type
+              title_str = ' / <a href=https://' + myGlobal.connection_addr + '>https://' + myGlobal.connection_addr + '</a>';
+          }
           let node_text = document.getElementById("node-title-text");
           if (node_text) {
-              node_text.innerHTML = (' : ' + window.name);
+              node_text.innerHTML = title_str;
           }
-          //console.log('loaded');
-          setupMessageBuffer(20);
       });
     </script>
 </head>
 <body>
-  <H2><div id="node-title">Message GUI</div><div id="node-title-text"></div></H2>
+  <H2><span id="node-title">Message GUI</span><span id="node-title-text"></span></H2>
   <!-- publish -->
   Publishing a Topic
   <hr>
@@ -45,8 +51,6 @@
                 return;
             }
         }
-        //console.log(tp_name);
-        //console.log(msg);
         myGlobal.BM.msg_pool.publish(tp_name.value, msg);
     }
   </script>
