@@ -8,31 +8,26 @@
 - Message GUI // -- display -- / -- https://xxxx to checkout --
 
 
----
+--- (A)
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes
 openssl req -x509 -new -nodes -keyout key.pem -out cert.pem -days 365
 
----
+--- (B) OKK
 // for ssl
-// openssl genrsa -out server.key 2048
-// openssl req -out server.csr -key server.key -new -subj "/C=JP/ST=Aichi/O=IRSL/CN=TUT"
-// openssl x509 -req -days 3650 -signkey server.key -in server.csr -out server.crt
-// openssl rsa -in server.key -text > key.pem
-// openssl x509 -inform PEM -in server.crt > cert.pem
+openssl genrsa -out server.key 2048
+openssl req -new -out server.csr -key server.key -subj "/C=JP/ST=Aichi/O=IRSL/CN=TUT"
+openssl x509 -req -days 3650 -signkey server.key -in server.csr -out server.crt
+# OR
+echo 'subjectAltName = DNS:tut.ac.jp, DNS:*.irsl.eiiris.tut.ac.jp, IP:133.15.97.31' > subjectnames.txt
+openssl x509 -req -days 3650 -signkey server.key -in server.csr -out server.crt -extfile subjectnames.txt
+#
+openssl rsa -in server.key -text > key.pem
+openssl x509 -inform PEM -in server.crt > cert.pem
 
----
-if [ ! -e ${abs_dir}/userdir/server.key ]; then
-    openssl genrsa -out ${abs_dir}/userdir/server.key 2048
-fi
+openssl x509 -text -in server.crt --noout
 
-if [ ! -e ${abs_dir}/userdir/server.crt ]; then
-    openssl req -out ${abs_dir}/userdir/server.csr -key ${abs_dir}/userdir/server.key -new -subj "/C=JP/ST=Aichi/O=IRSL/CN=${_COMMON_NAME}"
-    openssl x509 -req -days 3650 -signkey ${abs_dir}/userdir/server.key -in ${abs_dir}/userdir/server.csr -out ${abs_dir}/userdir/server.crt
-fi
-
-
----
-$ openssl genrsa -aes128 -out sample.key 2048
+--- (D)
+1$ openssl genrsa -aes128 -out sample.key 2048
 秘密鍵は、以下の情報で作成し、鍵の保護はAES-128を指定。
 
 鍵アルゴリズム … RSA
@@ -71,6 +66,7 @@ Common Nameに「*.example.com」のように、「*」を含めたものにす�
 証明書への署名。通常は、次のようになります（有効期限は、365日にしています）。
 
 $ openssl x509 -req -days 365 -in sample.csr -signkey sample.key -out sample.crt
+  openssl x509 -req -days 365 -in sample.csr -signkey sample.key -out sample.crt -extfile subjectnames.txt
 確認。
 
 $ openssl x509 -text -in sample.crt --noout
@@ -89,3 +85,6 @@ $ openssl x509 -text -in sample.crt --noout
 
 
 sample.key, sample.crt
+
+
+openssl genrsa -aes128 -out sample.key 2048
