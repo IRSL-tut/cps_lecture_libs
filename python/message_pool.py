@@ -3,14 +3,13 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 from datetime import datetime
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Set
 
-import websockets
-
-
+#
+#
+#
 class RingBuffer:
     def __init__(self, size: int) -> None:
         self._length = 0
@@ -229,8 +228,12 @@ class MessagePool:
                     if self.auto_subscribe:
                         self.subscribe(topic, self.default_callback)
                         self._receiveData(instr)
-
-
+#
+#
+#
+import ssl
+import threading
+from websocket import create_connection
 class WebMessage:
     def __init__(self, addr: str, size: int = 100, loop: Optional[asyncio.AbstractEventLoop] = None) -> None:
         self.addr = addr
@@ -238,33 +241,84 @@ class WebMessage:
         self.connection = False
         self.ws_client = None
         self.msg_pool = MessagePool(self.size)
-        self._recv_task: Optional[asyncio.Task] = None
-        self._loop = loop or asyncio.get_event_loop()
-        self._loop.create_task(self.connect())
+        self._recv_thread: Optional[threading.Thread] = None
+        self._stop_event = threading.Event()
+        self.connect()
 
-    async def connect(self) -> None:
-        self.ws_client = await websockets.connect(self.addr)
-        self.msg_pool.setPublishMethod(lambda instr: self._loop.create_task(self.ws_client.send(instr)))
-        self.connection = True
-        print("ws open")
-        self._recv_task = self._loop.create_task(self._recv_loop())
-
-    async def _recv_loop(self) -> None:
+    def connect(self) -> None:
         try:
-            async for msg in self.ws_client:
-                self.msg_pool._receiveData(msg)
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+            self.ws_client = create_connection(self.addr, sslopt={"cert_reqs": ssl.CERT_NONE})
+            self.msg_pool.setPublishMethod(lambda instr: self.ws_client.send(instr))
+            self.connection = True
+            print("ws open")
+            self._stop_event.clear()
+            self._recv_thread = threading.Thread(target=self._recv_loop, daemon=True)
+            self._recv_thread.start()
+        except Exception as e:
+            print(f"ws connection error: {e}")
+            self.connection = False
+
+    def _recv_loop(self) -> None:
+        try:
+            while self.connection and not self._stop_event.is_set():
+                msg = self.ws_client.recv()
+                if msg:
+                    self.msg_pool._receiveData(msg)
         except Exception:
             print("ws error")
         finally:
             print("ws closed")
             self.connection = False
 
-    async def close(self) -> None:
+    def close(self) -> None:
+        self.connection = False
+        self._stop_event.set()
         if self.ws_client:
-            await self.ws_client.close()
-        if self._recv_task:
-            await self._recv_task
-
+            self.ws_client.close()
+        if self._recv_thread:
+            self._recv_thread.join(timeout=2)
+#>#
+#>#
+#>#
+#>import asyncio
+#>import websockets
+#>class WebMessage:
+#>    def __init__(self, addr: str, size: int = 100, loop: Optional[asyncio.AbstractEventLoop] = None) -> None:
+#>        self.addr = addr
+#>        self.size = size
+#>        self.connection = False
+#>        self.ws_client = None
+#>        self.msg_pool = MessagePool(self.size)
+#>        self._recv_task: Optional[asyncio.Task] = None
+#>        self._loop = loop or asyncio.get_event_loop()
+#>        self._loop.create_task(self.connect())
+#>
+#>    async def connect(self) -> None:
+#>        self.ws_client = await websockets.connect(self.addr)
+#>        self.msg_pool.setPublishMethod(lambda instr: self._loop.create_task(self.ws_client.send(instr)))
+#>        self.connection = True
+#>        print("ws open")
+#>        self._recv_task = self._loop.create_task(self._recv_loop())
+#>
+#>    async def _recv_loop(self) -> None:
+#>        try:
+#>            async for msg in self.ws_client:
+#>                self.msg_pool._receiveData(msg)
+#>        except Exception:
+#>            print("ws error")
+#>        finally:
+#>            print("ws closed")
+#>            self.connection = False
+#>
+#>    async def close(self) -> None:
+#>        if self.ws_client:
+#>            await self.ws_client.close()
+#>        if self._recv_task:
+#>            await self._recv_task
+#>
 
 class BrowserMessage:
     def __init__(self, hostwindow: Any, size: int = 100) -> None:
