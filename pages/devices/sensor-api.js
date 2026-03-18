@@ -38,6 +38,8 @@ const startAccelerometer = () => {
     setText("accY", fmt(sensor.y, "m/s^2"));
     setText("accZ", fmt(sensor.z, "m/s^2"));
     setText("accT", fmt(sensor.timestamp, "ms"));
+    //
+    myGlobal.BM.msg_pool.publish('accel', [sensor.x, sensor.y, sensor.z, sensor.timestamp]);
   });
   sensor.addEventListener("error", (event) => {
     statusEl.textContent = `Accelerometer error: ${event.error?.message || "unknown"}`;
@@ -57,6 +59,8 @@ const startLinearAcceleration = () => {
     setText("linY", fmt(sensor.y, "m/s^2"));
     setText("linZ", fmt(sensor.z, "m/s^2"));
     setText("linT", fmt(sensor.timestamp, "ms"));
+    //
+    myGlobal.BM.msg_pool.publish('lin_acc', [sensor.x, sensor.y, sensor.z, sensor.timestamp]);
   });
   sensor.addEventListener("error", (event) => {
     statusEl.textContent = `Linear accel error: ${event.error?.message || "unknown"}`;
@@ -76,6 +80,8 @@ const startGyroscope = () => {
     setText("gyroY", fmt(sensor.y, "rad/s"));
     setText("gyroZ", fmt(sensor.z, "rad/s"));
     setText("gyroT", fmt(sensor.timestamp, "ms"));
+    //
+    myGlobal.BM.msg_pool.publish('gyro', [sensor.x, sensor.y, sensor.z, sensor.timestamp]);
   });
   sensor.addEventListener("error", (event) => {
     statusEl.textContent = `Gyroscope error: ${event.error?.message || "unknown"}`;
@@ -93,6 +99,8 @@ const startAbsoluteOrientation = () => {
   sensor.addEventListener("reading", () => {
     setText("absQuat", fmtQuat(sensor.quaternion));
     setText("absT", fmt(sensor.timestamp, "ms"));
+    //
+    myGlobal.BM.msg_pool.publish('abs_quat', [sensor.quaternion[0], sensor.quaternion[1], sensor.quaternion[2], sensor.quaternion[3], sensor.timestamp]);
   });
   sensor.addEventListener("error", (event) => {
     statusEl.textContent = `Abs orientation error: ${event.error?.message || "unknown"}`;
@@ -119,6 +127,7 @@ const startRelativeOrientation = () => {
 };
 
 const startAll = () => {
+  myGlobal.BM.msg_pool.publish('log', 'start-button');
   if (!window.isSecureContext) {
     statusEl.textContent = "Sensor APIs require HTTPS";
     return;

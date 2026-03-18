@@ -83,11 +83,30 @@
       line-height: 1.4;
     }
   </style>
+  <script src="../../libs/message_pool.js"> </script>
+  <script src="../../libs/init_client.js"> </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', (e) => {
+        setupMessageBuffer(20);
+        let title_str;
+        if ( myGlobal.connection_type == 'browser' ) {
+            title_str = (' : ' + window.name);
+        } else {
+            myGlobal.connection_type
+            title_str = ' / <a href=https://' + myGlobal.connection_addr + '>https://' + myGlobal.connection_addr + '</a>';
+        }
+        let node_text = document.getElementById("node-title-text");
+        if (node_text) {
+            node_text.innerHTML = title_str;
+        }
+    });
+  </script>
 </head>
 <body>
   <header>
     <h1>Mobile Sensor API Monitor</h1>
     <p class="sub">Uses the Generic Sensor API for accelerometer, gyroscope, and orientation.</p>
+    <p class="sub"><span id="node-title-text"></span></p>
   </header>
 
   <div class="controls">
