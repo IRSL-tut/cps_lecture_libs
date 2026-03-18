@@ -437,7 +437,12 @@
         }
         const wait = document.getElementById("interpreter-wait");
         const tm = wait.value;
-        const code = Blockly.JavaScript.workspaceToCode(blockly_workspace);
+        let code = 'var _submap = {};\n';
+        //code += 'function _subfunc (k) { let res = ;\n if(res){ _submap[k](k); } };\n';
+        code += 'function _subfunc (k) { var res=blockFuncs.get_last_message(k); if(res){ _submap[k](res); } }\n';
+        code += 'function end_with () { Object.keys(_submap).forEach(_subfunc); }\n\n';
+        code += Blockly.JavaScript.workspaceToCode(blockly_workspace);
+        console.log(code);
         ////
         _runStartProcedure();
         ////

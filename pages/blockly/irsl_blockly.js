@@ -285,7 +285,8 @@ javascript.javascriptGenerator.forBlock['pass'] = function(block, generator) {
     return code;
 };
 javascript.javascriptGenerator.forBlock['end_with'] = function(block, generator) {
-    var code = 'blockFuncs.end_with();\n';
+    //var code = 'blockFuncs.end_with();\n';
+    var code = 'end_with();\n';
     return code;
 };
 javascript.javascriptGenerator.forBlock['write_string'] = function(block, generator) {
@@ -336,7 +337,8 @@ javascript.javascriptGenerator.forBlock['subscribe'] = function(block, generator
   if (res) { value_func = res[1]; }
   var code;
   if (res) {
-    code = 'blockFuncs.subscribe(' + value_topic + ', ' + value_func + ');\n';
+    //code = 'blockFuncs.subscribe(' + value_topic + ', ' + value_func + ');\n';
+    code = '_submap[' + value_topic + '] = ' + value_func + ';\n' + 'blockFuncs.subscribe(' + value_topic + ');\n';
   } else {
     code = 'blockFuncs.subscribe(' + value_topic + ');\n';
   }
