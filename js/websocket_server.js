@@ -38,21 +38,23 @@ if (use_ssl) {
 }
 
 //verbose
-const verbose = true;
+const verbose = false;
 const echo_back = false;
+let counter = 0;
 wss_server.on("connection", (conn_client, req) => {
   const remote = req.connection.remoteAddress + ':' + req.connection.remotePort;
-  if (verbose) {
-    console.log('connected from ... ' + remote);
-    //console.log(conn_client);
-  } else {
-    console.log('connected ');
-  }
+  console.log('connected from ... ' + remote);
 
   conn_client.on('message', (msg) => {
     if (verbose) {
       console.log('get msg from: '+ remote);
       console.log(msg.toString('utf8'));
+    } else {
+      //process.stdout.write('.');
+      //counter += 1;
+      //if (counter % 80 == 0) {
+      //process.stdout.write('\n');
+      //} // quiet
     }
     /// TODO: parse message
 
@@ -64,11 +66,7 @@ wss_server.on("connection", (conn_client, req) => {
   });
   //
   conn_client.on('close', (e) => {
-    if (verbose) {
-      console.log('I lost a client: ' + remote);
-    } else {
-      console.log('I lost a client');
-    }
+    console.log('I lost a client: ' + remote);
   });
 });
 
