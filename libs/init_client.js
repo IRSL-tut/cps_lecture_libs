@@ -8,6 +8,29 @@ if (window.name) {
 // global variables
 const myGlobal = {};
 
+function open_callback()
+{
+  console.log('cb: open');
+}
+
+function close_callback()
+{
+  console.log('cb: close');
+  let node_text = document.getElementById("node-status");
+  if (node_text) {
+    node_text.innerHTML = "closed";
+  }
+}
+
+function error_callback()
+{
+  console.log('cb: error');
+  let node_text = document.getElementById("node-status");
+  if (node_text) {
+    node_text.innerHTML = "error";
+  }
+}
+
 // settings of myGlobal.BM
 function setupMessageBuffer(buffer_size=1, force_websocket=false)
 {
@@ -72,7 +95,12 @@ function setupMessageBuffer(buffer_size=1, force_websocket=false)
       ws_url = 'ws://' + wshost + ':' + wsport;
     }
     console.log('server address: ' + ws_url);
-    myGlobal.BM = new WebMessage(ws_url, buffer_size, auth);
+    let _args = {};
+    _args['auth'] = auth;
+    _args['open_callback'] = open_callback;
+    _args['close_callback'] = close_callback;
+    _args['error_callback'] = error_callback;
+    myGlobal.BM = new WebMessage(ws_url, buffer_size, _args);
     myGlobal.BM.msg_pool.debug = false;
     if (ssl) {
       myGlobal.connection_type = 'websocket';

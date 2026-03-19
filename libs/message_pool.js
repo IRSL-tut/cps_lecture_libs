@@ -306,13 +306,19 @@ class MessagePool {
 };
 
 class WebMessage {
-  constructor(addr, _size = 100, _auth = false)
+  constructor(addr, _size = 100, _args = {} )
   {
     this.addr = addr;
     this.size = _size;
-    this.authorized = _auth;
     this.connection = false;
     this.connect();
+    //
+    const { open_callback: o_cb,
+            close_callback: c_cb,
+            error_callback: e_cb } = _args;
+    this.open_callback = o_cb;
+    this.close_callback = c_cb;
+    this.error_callback = e_cb;
   }
   connect()
   {
@@ -332,15 +338,21 @@ class WebMessage {
     };
     this.ws_client.onopen = (e) => {
       console.log('ws open');
-      // write header
+      if (this.open_callback) {
+        this.open_callback();
+      }
     };
     this.ws_client.onerror = (e) => {
       console.log('ws error');
-      // write header
+      if (this.error_callback) {
+        this.error_callback();
+      }
     };
     this.ws_client.onclose = (e) => {
       console.log('ws closed');
-      // write header
+      if (this.close_callback) {
+        this.close_callback();
+      }
     };
   }
 };
