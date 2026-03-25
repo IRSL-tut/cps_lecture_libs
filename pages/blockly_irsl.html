@@ -321,10 +321,10 @@
     blockFuncs.publish = publish;
     blockFuncs.get_message = get_message;
     blockFuncs.get_last_message = get_last_message;
-    blockFuncs.get_id = getID;
-    blockFuncs.register_proc = registerProc;
-    blockFuncs.delete_proc = deleteProc;
-    blockFuncs.do_proc = doProc;
+    //blockFuncs.get_id = getID;
+    //blockFuncs.register_proc = registerProc;
+    //blockFuncs.delete_proc = deleteProc;
+    //blockFuncs.do_proc = doProc;
     blockFuncs.get_obj_key = get_obj_key;
   </script>
   <script src="./blockly/irsl_blockly.js"></script>
@@ -393,6 +393,21 @@
             console.log("run-stop");
         }
     }
+    function generateCode(add_highlight=false) {
+        Blockly.JavaScript.addReservedWords("code");
+        if (add_highlight) {
+            Blockly.JavaScript.STATEMENT_PREFIX = "blockFuncs.highlightBlock(%1);\n";
+            Blockly.JavaScript.addReservedWords("highlightBlock");
+        } else {
+            Blockly.JavaScript.STATEMENT_PREFIX = null;
+        }
+
+        const wait = document.getElementById("interpreter-wait");
+        const tm = wait.value;
+        var code = Blockly.JavaScript.workspaceToCode(blockly_workspace);
+        console.log(code);
+        return code;
+    }
     function runBlocks () {
         const step_ck = document.getElementById("step-eval");
         if (step_ck.checked) {
@@ -426,25 +441,15 @@
         myGlobal.stop_button = true;
     }
     function runBlocksStep () {
-        Blockly.JavaScript.addReservedWords("code");
-        Blockly.JavaScript.STATEMENT_PREFIX = "blockFuncs.highlightBlock(%1);\n";
-        Blockly.JavaScript.addReservedWords("highlightBlock");
         const highlight_ck = document.getElementById("highlight-check");
-        if (highlight_ck.checked) {
-            myGlobal.enable_highlight = true;
-        } else {
-            myGlobal.enable_highlight = false;
-        }
         const wait = document.getElementById("interpreter-wait");
         const tm = wait.value;
-        let code = 'var _submap = {};\n';
-        //code += 'function _subfunc (k) { let res = ;\n if(res){ _submap[k](k); } };\n';
-        code += 'function _subfunc (k) { var res=blockFuncs.get_last_message(k); if(res){ _submap[k](res); } }\n';
-        code += 'function end_with () { Object.keys(_submap).forEach(_subfunc); }\n\n';
-        code += Blockly.JavaScript.workspaceToCode(blockly_workspace);
-        console.log(code);
+        let code = generateCode(true);
+        myGlobal.enable_highlight = highlight_ck.checked;
+
         ////
         _runStartProcedure();
+        //console.log('_runStartProcedure();');
         ////
         if (myGlobal.debug) {
             myGlobal.print(code);
@@ -475,14 +480,17 @@
             myGlobal.print(`step_wait: ${step_wait}, break_tm: ${break_tm}`);
         }
         function nextStep() {
+            //console.log('in: nextStep()');
             while(true) {
                 if(myInterpreter.step()) {
+                    //console.log('myInterpreter.step() : ' + myGlobal.break_step);
                     if(myGlobal.break_step >= break_tm) {
                         myGlobal.break_step = 0;
                         setTimeout(nextStep, step_wait);
                         return;
                     }
                 } else {
+                    //console.log('_runEndProcedure();');
                     _runEndProcedure();
                     break;
 
@@ -495,6 +503,7 @@
             }
         }
         nextStep();
+        //console.log('main: nextStep();');
     }
     function clearBlocks () {
         blockly_workspace.clear();
@@ -529,16 +538,11 @@
     }
     function showScript() {
         var code = null;
-        var elm = document.getElementById("select-script");
-        Blockly.JavaScript.STATEMENT_PREFIX = null;
         const highlight_ck = document.getElementById("highlight-check");
-        if (highlight_ck.checked) {
-            Blockly.JavaScript.STATEMENT_PREFIX = "blockFuncs.highlightBlock(%1);\n";
-            Blockly.JavaScript.addReservedWords("highlightBlock");
-        }
+        var elm = document.getElementById("select-script");
         if (elm.value == "javascript") {
             Blockly.JavaScript.addReservedWords("code");
-            code = Blockly.JavaScript.workspaceToCode(blockly_workspace);
+            code = generateCode(highlight_ck.checked);
         } else if (elm.value == "python") {
             Blockly.Python.addReservedWords("code");
             code = Blockly.Python.workspaceToCode(blockly_workspace);

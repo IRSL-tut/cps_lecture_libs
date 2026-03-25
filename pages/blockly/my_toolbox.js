@@ -869,45 +869,19 @@ const my_toolbox = {
           kind: 'block',
         },
         {
-          type: 'get_id',
-          kind: 'block',
-        },
-        {
-          type: 'register_proc',
-          kind: 'block',
-        },
-        {
-          type: 'delete_proc',
-          kind: 'block',
-        },
-        {
-          type: 'do_proc',
-          kind: 'block',
-        },
-        {
           type: 'object_key',
           kind: 'block',
         },
-        /// subscribe
-        /// getData
-        /// sendData
+
       ],
     },
     {
       kind: 'category',
-      name: 'Misc',
-      categorystyle: 'robot_category',
+      name: 'MessageLoop',
+      categorystyle: 'loop_category',
       contents: [
         {
-          type: 'getkey',
-          kind: 'block',
-        },
-        {
-          type: 'getButton',
-          kind: 'block',
-        },
-        {
-          type: 'async_blocks',
+          type: 'MessageLoop',
           kind: 'block',
         },
       ],

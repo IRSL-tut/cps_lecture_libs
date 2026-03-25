@@ -1,29 +1,29 @@
-Blockly.Blocks['getkey'] = {
-    init: function() {
-        this.appendDummyInput()
-            .appendField("getKey");
-        this.appendEndRowInput()
-            .appendField("async")
-            .appendField(new Blockly.FieldCheckbox("FALSE"), "async");
-        this.setOutput(true, null);
-        this.setStyle('robot_blocks')
-        this.setTooltip("");
-        this.setHelpUrl("");
-    },
-};
-Blockly.Blocks['getButton'] = {
-    init: function() {
-        this.appendDummyInput()
-            .appendField("getButton");
-        this.appendEndRowInput()
-            .appendField("async")
-            .appendField(new Blockly.FieldCheckbox("FALSE"), "async");
-        this.setOutput(true, null);
-        this.setStyle('robot_blocks')
-        this.setTooltip("");
-        this.setHelpUrl("");
-    },
-};
+//Blockly.Blocks['getkey'] = {
+//    init: function() {
+//        this.appendDummyInput()
+//            .appendField("getKey");
+//        this.appendEndRowInput()
+//            .appendField("async")
+//            .appendField(new Blockly.FieldCheckbox("FALSE"), "async");
+//        this.setOutput(true, null);
+//        this.setStyle('robot_blocks')
+//        this.setTooltip("");
+//        this.setHelpUrl("");
+//    },
+//};
+//Blockly.Blocks['getButton'] = {
+//    init: function() {
+//        this.appendDummyInput()
+//            .appendField("getButton");
+//        this.appendEndRowInput()
+//            .appendField("async")
+//            .appendField(new Blockly.FieldCheckbox("FALSE"), "async");
+//        this.setOutput(true, null);
+//        this.setStyle('robot_blocks')
+//        this.setTooltip("");
+//        this.setHelpUrl("");
+//    },
+//};
 Blockly.Blocks['start_from'] = {
     init: function() {
         this.appendValueInput("intext")
@@ -125,13 +125,15 @@ Blockly.Blocks['high_light'] = {
         this.setHelpUrl("");
     }
 };
-Blockly.Blocks['async_blocks'] = {
+Blockly.Blocks['MessageLoop'] = {
     init: function() {
         this.appendDummyInput()
-            .appendField("async_blocks");
-        this.appendStatementInput("async_f")
+            .appendField("MessageLoop");
+        this.appendStatementInput("message_loop")
             .setCheck(null);
-        this.setStyle('robot_blocks')
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setStyle('loop_blocks')
         this.setTooltip("");
         this.setHelpUrl("");
     }
@@ -199,53 +201,53 @@ Blockly.Blocks['get_last_message'] = {
         this.setHelpUrl("");
     }
 };
-Blockly.Blocks['get_id'] = {
-    init: function() {
-        this.appendDummyInput()
-            .appendField("getID");
-        this.setOutput(true, "String");
-        this.setStyle('message_blocks')
-        this.setTooltip("");
-        this.setHelpUrl("");
-    },
-};
-Blockly.Blocks['register_proc'] = {
-    init: function() {
-        this.appendValueInput("in_id")
-            .setCheck("String")
-            .appendField("registerProc : id");
-        this.appendValueInput("in_args")
-            .setCheck(null)
-            .appendField("args");
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-        this.setStyle('message_blocks')
-        this.setTooltip("");
-        this.setHelpUrl("");
-    },
-};
-Blockly.Blocks['delete_proc'] = {
-    init: function() {
-        this.appendValueInput("in_id")
-            .setCheck("String")
-            .appendField("deleteProc : id");
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-        this.setStyle('message_blocks')
-        this.setTooltip("");
-        this.setHelpUrl("");
-    },
-};
-Blockly.Blocks['do_proc'] = {
-    init: function() {
-        this.appendDummyInput()
-            .appendField("doProc");
-        this.setOutput(true, null);
-        this.setStyle('message_blocks')
-        this.setTooltip("");
-        this.setHelpUrl("");
-    },
-};
+//Blockly.Blocks['get_id'] = {
+//    init: function() {
+//        this.appendDummyInput()
+//            .appendField("getID");
+//        this.setOutput(true, "String");
+//        this.setStyle('message_blocks')
+//        this.setTooltip("");
+//        this.setHelpUrl("");
+//    },
+//};
+//Blockly.Blocks['register_proc'] = {
+//    init: function() {
+//        this.appendValueInput("in_id")
+//            .setCheck("String")
+//            .appendField("registerProc : id");
+//        this.appendValueInput("in_args")
+//            .setCheck(null)
+//            .appendField("args");
+//        this.setPreviousStatement(true, null);
+//        this.setNextStatement(true, null);
+//        this.setStyle('message_blocks')
+//        this.setTooltip("");
+//        this.setHelpUrl("");
+//    },
+//};
+//Blockly.Blocks['delete_proc'] = {
+//    init: function() {
+//        this.appendValueInput("in_id")
+//            .setCheck("String")
+//            .appendField("deleteProc : id");
+//        this.setPreviousStatement(true, null);
+//        this.setNextStatement(true, null);
+//        this.setStyle('message_blocks')
+//        this.setTooltip("");
+//        this.setHelpUrl("");
+//    },
+//};
+//Blockly.Blocks['do_proc'] = {
+//    init: function() {
+//        this.appendDummyInput()
+//            .appendField("doProc");
+//        this.setOutput(true, null);
+//        this.setStyle('message_blocks')
+//        this.setTooltip("");
+//        this.setHelpUrl("");
+//    },
+//};
 Blockly.Blocks['object_key'] = {
     init: function() {
       this.appendValueInput('invalue')
@@ -260,20 +262,20 @@ Blockly.Blocks['object_key'] = {
 };
 //
 // code generations
-javascript.javascriptGenerator.forBlock['getkey'] = function(block, generator) {
-    var checkbox_async = block.getFieldValue('async') === 'TRUE';
-    var code = 'await myGetKey()';
-    // await myGetKey
-    // TODO: Change ORDER_NONE to the correct strength.
-    return [code, javascript.Order.NONE];
-};
-javascript.javascriptGenerator.forBlock['getButton'] = function(block, generator) {
-    var checkbox_async = block.getFieldValue('async') === 'TRUE';
-    var code = 'await getButton()';
-    // await myGetKey
-    // TODO: Change ORDER_NONE to the correct strength.
-    return [code, javascript.Order.NONE];
-};
+//javascript.javascriptGenerator.forBlock['getkey'] = function(block, generator) {
+//    var checkbox_async = block.getFieldValue('async') === 'TRUE';
+//    var code = 'await myGetKey()';
+//    // await myGetKey
+//    // TODO: Change ORDER_NONE to the correct strength.
+//    return [code, javascript.Order.NONE];
+//};
+//javascript.javascriptGenerator.forBlock['getButton'] = function(block, generator) {
+//    var checkbox_async = block.getFieldValue('async') === 'TRUE';
+//    var code = 'await getButton()';
+//    // await myGetKey
+//    // TODO: Change ORDER_NONE to the correct strength.
+//    return [code, javascript.Order.NONE];
+//};
 javascript.javascriptGenerator.forBlock['start_from'] = function(block, generator) {
     var value_intext = generator.valueToCode(block, 'intext', javascript.Order.ATOMIC);
     var code = 'blockFuncs.start_from(' + value_intext + ');\n';
@@ -285,8 +287,7 @@ javascript.javascriptGenerator.forBlock['pass'] = function(block, generator) {
     return code;
 };
 javascript.javascriptGenerator.forBlock['end_with'] = function(block, generator) {
-    //var code = 'blockFuncs.end_with();\n';
-    var code = 'end_with();\n';
+    var code = 'blockFuncs.end_with();\n';
     return code;
 };
 javascript.javascriptGenerator.forBlock['write_string'] = function(block, generator) {
@@ -324,23 +325,29 @@ javascript.javascriptGenerator.forBlock['high_light'] = function(block, generato
     var code = 'blockFuncs.set_enable_highlight(' + checkbox_hl + ');\n';
     return code;
 };
-javascript.javascriptGenerator.forBlock['async_blocks'] = function(block, generator) {
-    var statements_async_f = generator.statementToCode(block, 'async_f');
-    var code = '(async () => {\n' + statements_async_f + '\n})();\n';
+javascript.javascriptGenerator.forBlock['MessageLoop'] = function(block, generator) {
+    var statements_ml = generator.statementToCode(block, 'message_loop');
+    var code = '';
+    code += 'function _subfunc (k) { var res=blockFuncs.get_last_message(k); if(res){ _submap[k](res); } }\n';
+    code += 'function process_message () { Object.keys(_submap).forEach(_subfunc); }\n\n';
+    code += 'if (typeof _submap==="undefined") {  _submap = {}; }\n'
+    code += 'while (true) { //>> MessageLoop \n  process_message();\n' + statements_ml + '\n} //<< MessageLoop';
     return code;
 };
 javascript.javascriptGenerator.forBlock['subscribe'] = function(block, generator) {
   let value_topic = generator.valueToCode(block, 'topic', javascript.Order.ATOMIC);
   let value_func = generator.valueToCode(block, 'func', javascript.Order.ATOMIC);
-  const re = /\(([^\(]*)\(/;
-  var res = value_func.match(re);
-  if (res) { value_func = res[1]; }
-  var code;
-  if (res) {
-    //code = 'blockFuncs.subscribe(' + value_topic + ', ' + value_func + ');\n';
-    code = '_submap[' + value_topic + '] = ' + value_func + ';\n' + 'blockFuncs.subscribe(' + value_topic + ');\n';
-  } else {
-    code = 'blockFuncs.subscribe(' + value_topic + ');\n';
+  var code = '';
+  if (value_topic.length > 0) {
+    if (value_func.length > 0) {
+      const re = /\'([^\']*)\'/;
+      var res = value_func.match(re);
+      if (res) { value_func = res[1]; }
+      code += 'if (typeof _submap==="undefined") {  _submap = {}; }\n'
+      code += '_submap[' + value_topic + '] = ' + value_func + ';\n' + 'blockFuncs.subscribe(' + value_topic + ');\n';
+    } else {
+      code += 'blockFuncs.subscribe(' + value_topic + ');\n';
+    }
   }
   return code;
 };
@@ -368,27 +375,27 @@ javascript.javascriptGenerator.forBlock['is_list'] = function(block, generator) 
   // TODO: Change ORDER_NONE to the correct strength.
   return [code, javascript.Order.NONE];
 };
-javascript.javascriptGenerator.forBlock['get_id'] = function(block, generator) {
-  var code = 'blockFuncs.get_id()';
-  // TODO: Change ORDER_NONE to the correct strength.
-  return [code, javascript.Order.NONE];
-};
-javascript.javascriptGenerator.forBlock['register_proc'] = function(block, generator) {
-  let v_id = generator.valueToCode(block, 'in_id', javascript.Order.ATOMIC);
-  let v_args = generator.valueToCode(block, 'in_args', javascript.Order.ATOMIC);
-  let code = "blockFuncs.register_proc(" + v_id + ", " + v_args + ");\n";
-  return code;
-};
-javascript.javascriptGenerator.forBlock['delete_proc'] = function(block, generator) {
-  let v_id = generator.valueToCode(block, 'in_id', javascript.Order.ATOMIC);
-  let code = "blockFuncs.delete_proc(" + v_id + ");\n";
-  return code;
-};
-javascript.javascriptGenerator.forBlock['do_proc'] = function(block, generator) {
-  var code = 'blockFuncs.do_proc()';
-  // TODO: Change ORDER_NONE to the correct strength.
-  return [code, javascript.Order.NONE];
-};
+//javascript.javascriptGenerator.forBlock['get_id'] = function(block, generator) {
+//  var code = 'blockFuncs.get_id()';
+//  // TODO: Change ORDER_NONE to the correct strength.
+//  return [code, javascript.Order.NONE];
+//};
+//javascript.javascriptGenerator.forBlock['register_proc'] = function(block, generator) {
+//  let v_id = generator.valueToCode(block, 'in_id', javascript.Order.ATOMIC);
+//  let v_args = generator.valueToCode(block, 'in_args', javascript.Order.ATOMIC);
+//  let code = "blockFuncs.register_proc(" + v_id + ", " + v_args + ");\n";
+//  return code;
+//};
+//javascript.javascriptGenerator.forBlock['delete_proc'] = function(block, generator) {
+//  let v_id = generator.valueToCode(block, 'in_id', javascript.Order.ATOMIC);
+//  let code = "blockFuncs.delete_proc(" + v_id + ");\n";
+//  return code;
+//};
+//javascript.javascriptGenerator.forBlock['do_proc'] = function(block, generator) {
+//  var code = 'blockFuncs.do_proc()';
+//  // TODO: Change ORDER_NONE to the correct strength.
+//  return [code, javascript.Order.NONE];
+//};
 javascript.javascriptGenerator.forBlock['object_key'] = function(block, generator) {
   const key = block.getFieldValue('key');
   const inv = generator.valueToCode(block, 'invalue', javascript.Order.ATOMIC);
