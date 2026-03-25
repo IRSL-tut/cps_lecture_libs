@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ミニピアノ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #f5f5f5;
+      margin:0;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      margin-bottom: 24px;
+    }
+
+    .piano {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      width: 80px;
+      height: 200px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    button:active {
+      background: #dbeafe;
+      transform: translateY(2px);
+    }
+  </style>
+</head>
+<body>
+  <h1>ミニピアノ</h1>
+
+  <div class="piano">
+    <button data-frequency="261.63">ド</button>
+    <button data-frequency="293.66">レ</button>
+    <button data-frequency="329.63">ミ</button>
+    <button data-frequency="349.23">ファ</button>
+    <button data-frequency="392.00">ソ</button>
+    <button data-frequency="440.00">ラ</button>
+    <button data-frequency="493.88">シ</button>
+    <button data-frequency="523.25">ド↑</button>
+  </div>
+
+  <script>
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    const audioContext = new AudioContextClass();
+
+    function playTone(frequency) {
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.type = 'sine';
+      oscillator.frequency.value = frequency;
+
+      gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.8);
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.4);
+    }
+
+    document.querySelectorAll('.piano button').forEach(button => {
+      button.addEventListener('click', async () => {
+        if (audioContext.state === 'suspended') {
+          await audioContext.resume();
+        }
+        const frequency = parseFloat(button.dataset.frequency);
+        playTone(frequency);
+      });
+    });
+  </script>
+</body>
+</html>
