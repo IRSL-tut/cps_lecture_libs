@@ -24,6 +24,12 @@
         margin-right: 5px;
         border: 1px solid black;
     }
+    .status-bar {
+        margin-top: 0px;
+        margin-bottom: 2px;
+        margin-left: 8px;
+        font: 16px sans-serif;
+    }
     .right-side {
         width: 30%;
         display: flex;
@@ -92,7 +98,12 @@
 </head>
 <body>
   <!--Visual Interfaces  -->
-  <div class="canvas-container" id="blocklyDiv"> </div>
+  <div class="canvas-container" >
+    <div class="status-bar">
+      status: <span id="node-status"></span>
+    </div>
+    <div id="blocklyDiv"> </div>
+  </div>
   <div class="right-side">
     <div class="button-container">
       <!-- -->
