@@ -11,6 +11,10 @@ const myGlobal = {};
 function open_callback()
 {
   console.log('cb: open');
+  let node_text = document.getElementById("node-status");
+  if (node_text) {
+    node_text.innerHTML = "opened";
+  }
 }
 
 function close_callback()
