@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ミニピアノ</title>
+  <title>Device:Piano</title>
   <style>
     body {
       font-family: sans-serif;
@@ -24,7 +24,7 @@
       flex-wrap: wrap;
     }
 
-    button {
+    .piano button {
       width: 80px;
       height: 200px;
       font-size: 1rem;
@@ -35,56 +35,152 @@
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
-    button:active {
+    .piano button:active {
       background: #dbeafe;
       transform: translateY(2px);
     }
+
+    .piano button.black {
+      width: 56px;
+      height: 140px;
+      background: #111;
+      color: #fff;
+      border: 1px solid #000;
+    }
+
+    .piano button.black:active {
+      background: #333;
+    }
+
+    .device-description {
+      max-width: 820px;
+      margin: 32px auto 0;
+      padding: 16px 20px;
+      text-align: left;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      line-height: 1.6;
+    }
+
+    .device-description h4 {
+      margin: 0 0 8px;
+    }
+
+    .device-description pre {
+      margin: 6px 0 14px;
+      padding: 10px;
+      background: #f7f7f7;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
   </style>
+  <script src="../../libs/message_pool.js"> </script>
+  <script src="../../libs/init_client.js"> </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', (e) => {
+        setupMessageBuffer(20);
+        let title_str;
+        if ( myGlobal.connection_type == 'browser' ) {
+            title_str = (' : ' + window.name);
+        } else {
+            myGlobal.connection_type
+            title_str = ' / <a href=https://' + myGlobal.connection_addr + '>https://' + myGlobal.connection_addr + '</a>';
+        }
+        let node_text = document.getElementById("node-title-text");
+        if (node_text) {
+            node_text.innerHTML = title_str;
+        }
+        myGlobal.BM.msg_pool.subscribe('sound', (msg) => {
+            playTone(msg);
+        });
+    });
+  </script>
 </head>
 <body>
-  <h1>ミニピアノ</h1>
+  <header>
+    <H2>Sound Device <span id="node-title-text"></span></H2>
+    <H3> status: <span id="node-status"></span> </H3>
+  </header>
 
   <div class="piano">
-    <button data-frequency="261.63">ド</button>
-    <button data-frequency="293.66">レ</button>
-    <button data-frequency="329.63">ミ</button>
-    <button data-frequency="349.23">ファ</button>
-    <button data-frequency="392.00">ソ</button>
-    <button data-frequency="440.00">ラ</button>
-    <button data-frequency="493.88">シ</button>
-    <button data-frequency="523.25">ド↑</button>
+    <button data-frequency="261.63" data-data="C4">ド</button>
+    <button class="black" data-frequency="277.18" data-data="C#4">ド#</button>
+    <button data-frequency="293.66" data-data="D4">レ</button>
+    <button class="black" data-frequency="311.13" data-data="D#4">レ#</button>
+    <button data-frequency="329.63" data-data="E4">ミ</button>
+    <button data-frequency="349.23" data-data="F4">ファ</button>
+    <button class="black" data-frequency="369.99" data-data="F#4">ファ#</button>
+    <button data-frequency="392.00" data-data="G4">ソ</button>
+    <button class="black" data-frequency="415.30" data-data="G#4">ソ#</button>
+    <button data-frequency="440.00" data-data="A4">ラ</button>
+    <button class="black" data-frequency="466.16" data-data="A#4">ラ#</button>
+    <button data-frequency="493.88" data-data="B4">シ</button>
+    <button data-frequency="523.25" data-data="C5">ド↑</button>
   </div>
+
+  <section class="device-description">
+    <h4>Device Description</h4>
+    <p><strong>subscribed topic:</strong></p>
+    <p>topic name: sound</p>
+    <pre>message type: {frequency: float, type: string,
+               duration: float, volume: float}
+     frequency: Sound frequency [Hz]
+     type: sine, square, triangle, sawtooth
+     duration: Sound duration [secound]
+     volume: Sound volume [0.0 - 1.0]</pre>
+
+    <p><strong>published topic:</strong></p>
+    <p>topic name: piano</p>
+    <pre>message type: {name: string, frequency: float}
+    name: Note name
+    frequency: Sound frequency [Hz]</pre>
+  </section>
 
   <script>
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     const audioContext = new AudioContextClass();
+    function playTone({frequency = 261.63, type = 'sine', duration = 0.5, volume = 0.2} = {}) {
+        //console.log('freq: ' + frequency);
+        //console.log('type: ' + type);
+        // ~sine~: やわらかい音
+        // ~square~: 電子的ではっきりした音
+        // ~triangle~: 少し丸い音
+        // ~sawtooth~: 明るく鋭い音
+        //console.log('dura: ' + duration);
+        //console.log('vol : ' + volume);
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        oscillator.type = type;
+        oscillator.frequency.value = frequency;
 
-    function playTone(frequency) {
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
+        gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
 
-      oscillator.type = 'sine';
-      oscillator.frequency.value = frequency;
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
 
-      gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.8);
-
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-
-      oscillator.start();
-      oscillator.stop(audioContext.currentTime + 0.4);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + duration);
     }
 
     document.querySelectorAll('.piano button').forEach(button => {
-      button.addEventListener('click', async () => {
-        if (audioContext.state === 'suspended') {
-          await audioContext.resume();
-        }
-        const frequency = parseFloat(button.dataset.frequency);
-        playTone(frequency);
-      });
+        button.addEventListener('click', async () => {
+            if (audioContext.state === 'suspended') {
+                await audioContext.resume();
+            }
+            const _freq = parseFloat(button.dataset.frequency);
+            playTone({frequency: _freq});
+            console.log(button.dataset.data);
+            let msg = {};
+            msg['frequency'] = button.dataset.frequency;
+            msg['name'] = button.dataset.data;
+            myGlobal.BM.msg_pool.publish('piano', msg);
+        });
     });
+
   </script>
 </body>
 </html>
