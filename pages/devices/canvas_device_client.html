@@ -3,16 +3,21 @@
   <head>
     <meta charset="utf-8">
     <title>Device(Canvas)</title>
-    <script src="../libs/message_pool.js"></script>
-    <script src="../libs/init_client.js"></script>
+    <script src="../../libs/message_pool.js"></script>
+    <script src="../../libs/init_client.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', (e) => {
+          setupMessageBuffer(100)
+          let title_str;
+          if ( myGlobal.connection_type == 'browser' ) {
+              title_str = (' : ' + window.name) + (' : ' + myGlobal.connection_type);
+          } else {
+              title_str = ' / <a href=https://' + myGlobal.connection_addr + '>https://' + myGlobal.connection_addr + '</a>';
+          }
           let node_text = document.getElementById("node-title-text");
           if (node_text) {
-              node_text.innerHTML = (' : ' + window.name);
-              node_text.innerHTML = (' : ' + myGlobal.connection_type);
+              node_text.innerHTML = title_str;
           }
-          setupMessageBuffer(100)
           let direct_sub = document.getElementById("direct_sub");
           if (direct_sub) {
               direct_sub.addEventListener("change", () => {
@@ -38,11 +43,12 @@
   </head>
   <body onload="onload_func()">
     <H2><div id="node-title">Device (Canvas)</div><div id="node-title-text"></div></H2>
+    <H3> status: <span id="node-status"></span> </H3>
     <canvas id="canvas" width="640" height="480"
             style="border:1px solid #000000; background: #ffffe8; max-width: 100%; height: auto; max-height: 100%">
       このブラウザはHTML5のCanvas要素に対応していません。
     </canvas>
-    <script src="../libs/canvasevent.js"></script>
+    <script src="../../libs/canvasevent.js"></script>
     <script>
       function onload_func() {
           canvas_init();
