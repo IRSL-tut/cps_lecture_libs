@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>バイブレーションデモ</title>
+  <title>Device:Vibration</title>
   <style>
     body {
       font-family: sans-serif;
@@ -27,20 +27,81 @@
     button:active {
       transform: scale(0.98);
     }
+    .device-description {
+      max-width: 820px;
+      margin: 32px auto 0;
+      padding: 16px 20px;
+      text-align: left;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      line-height: 1.6;
+    }
+    .device-description h4 {
+      margin: 0 0 8px;
+    }
+    .device-description pre {
+      margin: 6px 0 14px;
+      padding: 10px;
+      background: #f7f7f7;
+      border: 1px solid #e5e5e5;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
   </style>
+  <script src="../../libs/message_pool.js"> </script>
+  <script src="../../libs/init_client.js"> </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', (e) => {
+        setupMessageBuffer(20);
+        let title_str;
+        if ( myGlobal.connection_type == 'browser' ) {
+            title_str = (' : ' + window.name);
+        } else {
+            myGlobal.connection_type
+            title_str = ' / <a href=https://' + myGlobal.connection_addr + '>https://' + myGlobal.connection_addr + '</a>';
+        }
+        let node_text = document.getElementById("node-title-text");
+        if (node_text) {
+            node_text.innerHTML = title_str;
+        }
+        myGlobal.BM.msg_pool.subscribe('vibration', (msg) => {
+            genVibration(msg);
+        });
+    });
+  </script>
 </head>
 <body>
-  <button id="vibrateBtn">バイブレーション</button>
+  <div style="text-align: center; margin-bottom: 2em;">
+    <H2>Vibration Device <span id="node-title-text"></span></H2>
+    <H3> status: <span id="node-status"></span> </H3>
+
+    <button id="vibrateBtn">バイブレーション</button>
+
+    <section class="device-description">
+    <h4>Device Description</h4>
+    <p><strong>subscribed topic:</strong></p>
+    <p>topic name: vibration</p>
+    <pre>message type: { pattern: int or list[int] }
+     pattern: Vibration pattern [ms]</pre>
+    </section>
+  </div>
 
   <script>
+    function genVibration({pattern = 200} = {}) {
+        if ('vibrate' in navigator) {
+            navigator.vibrate(pattern);
+        }
+    }
     const button = document.getElementById('vibrateBtn');
 
     button.addEventListener('click', () => {
-      if ('vibrate' in navigator) {
-        navigator.vibrate(200);
-      } else {
-        alert('この端末・ブラウザはバイブレーションに対応していません。');
-      }
+        if ('vibrate' in navigator) {
+            navigator.vibrate(200);
+        } else {
+            alert('この端末・ブラウザはバイブレーションに対応していません。');
+        }
     });
   </script>
 </body>
