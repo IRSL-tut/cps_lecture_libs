@@ -96,8 +96,8 @@
       <div><br><!-- dummy element --></div><div><!-- dummy element --></div>
       <button class="button" onclick="startMaze()" >Start Maze</button>      <div><!-- dummy element --></div>
       <button class="button" onclick="startPong()" >Start Ping Pong</button> <div><!-- dummy element --></div>
-      <button class="button" onclick="startSensor()" >Start Sensor</button> <div><!-- dummy element --></div>
-      <button class="button" onclick="startDevice()" >Start Device</button> <div><!-- dummy element --></div>
+      <button class="button" onclick="startSensor()" >Start Mouse Sensor</button> <div><!-- dummy element --></div>
+      <button class="button" onclick="startDevice()" >Start Canvas Device</button> <div><!-- dummy element --></div>
       <button class="button" onclick="startMsgGui()" >Start Message GUI</button> <div><!-- dummy element --></div>
       <div><br><!-- dummy element --></div><div><!-- dummy element --></div>
       <button class="button" onclick="checkMessages()"   >Check Messages</button> <div><!-- dummy element --></div>
@@ -341,7 +341,7 @@
         // add options
         var cfg = getHostConfig();
         var new_w = window.open(
-            "./mouse_sensor_client.html" + makeHostParams(cfg),
+            "./devices/mouse_sensor_client.html" + makeHostParams(cfg),
             tabname,
             "top=90,left=90,width=740,height=740,menubar=no,toolbar=no,location=no"
         );
@@ -356,7 +356,7 @@
         // add options
         var cfg = getHostConfig();
         var new_w = window.open(
-            "./canvas_device_client.html" + makeHostParams(cfg),
+            "./devices/canvas_device_client.html" + makeHostParams(cfg),
             tabname,
             "top=70,left=70,width=740,height=740,menubar=no,toolbar=no,location=no"
         );
