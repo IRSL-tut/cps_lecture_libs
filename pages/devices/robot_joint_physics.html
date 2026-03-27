@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Babylon.js 簡易ロボット物理シミュレーション</title>
+  <style>
+    :root {
+      --bg: #eef3f8;
+      --panel: rgba(255, 255, 255, 0.9);
+      --text: #11263d;
+      --accent: #1976d2;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans JP", sans-serif;
+      background: radial-gradient(circle at 20% 20%, #f7fbff, var(--bg));
+      color: var(--text);
+    }
+
+    #app {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+    }
+
+    .panel {
+      padding: 14px 16px;
+      background: var(--panel);
+      backdrop-filter: blur(4px);
+      border-bottom: 1px solid rgba(17, 38, 61, 0.12);
+    }
+
+    .panel h1 {
+      margin: 0 0 8px;
+      font-size: 1.1rem;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 0.95rem;
+    }
+
+    .controls label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .controls input[type="range"] {
+      width: 220px;
+      accent-color: var(--accent);
+    }
+
+    .controls button {
+      border: 0;
+      border-radius: 8px;
+      padding: 8px 12px;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    #renderCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="panel">
+      <h1>3つの直方体 + 2関節（ヒンジ）で作る簡易ロボット</h1>
+      <div class="controls">
+        <label>
+          肩関節トルク
+          <input id="shoulderTorque" type="range" min="-100" max="100" step="0.5" value="8" />
+          <span id="shoulderTorqueValue">8.0</span>
+        </label>
+        <label>
+          肘関節トルク
+          <input id="elbowTorque" type="range" min="-30" max="30" step="0.5" value="0" />
+          <span id="elbowTorqueValue">6.0</span>
+        </label>
+        <button id="reverseBtn" type="button">反転</button>
+      </div>
+    </div>
+    <canvas id="renderCanvas"></canvas>
+  </div>
+
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+  <script>
+    async function main() {
+      const canvas = document.getElementById("renderCanvas");
+      const engine = new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true });
+      const scene = new BABYLON.Scene(engine);
+      scene.clearColor = new BABYLON.Color4(0.92, 0.95, 0.98, 1.0);
+
+      const camera = new BABYLON.ArcRotateCamera(
+        "camera",
+        -Math.PI / 2,
+        Math.PI / 2.8,
+        10,
+        new BABYLON.Vector3(0, 1.2, 0),
+        scene
+      );
+      camera.attachControl(canvas, true);
+
+      const hemi = new BABYLON.HemisphericLight("hemi", new BABYLON.Vector3(0, 1, 0), scene);
+      hemi.intensity = 0.9;
+
+      const dir = new BABYLON.DirectionalLight("dir", new BABYLON.Vector3(-0.5, -1, -0.4), scene);
+      dir.position = new BABYLON.Vector3(6, 8, 5);
+      dir.intensity = 0.6;
+
+      // Havok を非同期初期化して Babylon の物理プラグインに渡す
+      const havokInstance = await HavokPhysics();
+      const havokPlugin = new BABYLON.HavokPlugin(true, havokInstance);
+      scene.enablePhysics(new BABYLON.Vector3(0, -9.81, 0), havokPlugin);
+
+      const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 16, height: 16 }, scene);
+      const groundMat = new BABYLON.StandardMaterial("groundMat", scene);
+      groundMat.diffuseColor = new BABYLON.Color3(0.85, 0.89, 0.93);
+      ground.material = groundMat;
+      const groundAggregate = new BABYLON.PhysicsAggregate(
+        ground,
+        BABYLON.PhysicsShapeType.BOX,
+        { mass: 0, friction: 0.9, restitution: 0.1 },
+        scene
+      );
+
+      const base = BABYLON.MeshBuilder.CreateBox("base", { width: 1.4, height: 0.6, depth: 0.6 }, scene);
+      base.position = new BABYLON.Vector3(-0.8, 2.5, 0);
+      const baseMat = new BABYLON.StandardMaterial("baseMat", scene);
+      baseMat.diffuseColor = new BABYLON.Color3(0.17, 0.45, 0.85);
+      base.material = baseMat;
+      const baseAggregate = new BABYLON.PhysicsAggregate(
+        base,
+        BABYLON.PhysicsShapeType.BOX,
+        { mass: 0, friction: 0.6, restitution: 0.05 },
+        scene
+      );
+
+      const arm = BABYLON.MeshBuilder.CreateBox("arm", { width: 2.2, height: 0.45, depth: 0.45 }, scene);
+      arm.position = new BABYLON.Vector3(1.0, 2.5, 0);
+      const armMat = new BABYLON.StandardMaterial("armMat", scene);
+      armMat.diffuseColor = new BABYLON.Color3(0.92, 0.49, 0.16);
+      arm.material = armMat;
+      const armAggregate = new BABYLON.PhysicsAggregate(
+        arm,
+        BABYLON.PhysicsShapeType.BOX,
+        { mass: 1.5, friction: 0.6, restitution: 0.05 },
+        scene
+      );
+
+      const shoulderJoint = new BABYLON.HingeConstraint(
+        new BABYLON.Vector3(0.7, 0, 0),
+        new BABYLON.Vector3(-1.1, 0, 0),
+        new BABYLON.Vector3(0, 0, 1),
+        new BABYLON.Vector3(0, 0, 1),
+        scene
+      );
+
+      const forearm = BABYLON.MeshBuilder.CreateBox("forearm", { width: 1.8, height: 0.4, depth: 0.4 }, scene);
+      forearm.position = new BABYLON.Vector3(3.0, 2.5, 0);
+      const forearmMat = new BABYLON.StandardMaterial("forearmMat", scene);
+      forearmMat.diffuseColor = new BABYLON.Color3(0.19, 0.72, 0.46);
+      forearm.material = forearmMat;
+      const forearmAggregate = new BABYLON.PhysicsAggregate(
+        forearm,
+        BABYLON.PhysicsShapeType.BOX,
+        { mass: 1.0, friction: 0.6, restitution: 0.05 },
+        scene
+      );
+
+      const elbowJoint = new BABYLON.HingeConstraint(
+        new BABYLON.Vector3(1.1, 0, 0),
+        new BABYLON.Vector3(-0.9, 0, 0),
+        new BABYLON.Vector3(0, 0, 1),
+        new BABYLON.Vector3(0, 0, 1),
+        scene
+      );
+
+      // 衝突フィルタ: forearm と ground のみ衝突を無効化
+      const CAT_GROUND = 0x0001;
+      const CAT_BASE = 0x0002;
+      const CAT_ARM = 0x0004;
+      const CAT_FOREARM = 0x0008;
+
+      groundAggregate.shape.filterMembershipMask = CAT_GROUND;
+      groundAggregate.shape.filterCollideMask = CAT_BASE | CAT_ARM;
+
+      baseAggregate.shape.filterMembershipMask = CAT_BASE;
+      baseAggregate.shape.filterCollideMask = CAT_GROUND | CAT_ARM;
+
+      armAggregate.shape.filterMembershipMask = CAT_ARM;
+      armAggregate.shape.filterCollideMask = CAT_GROUND | CAT_BASE | CAT_FOREARM;
+
+      forearmAggregate.shape.filterMembershipMask = CAT_FOREARM;
+      forearmAggregate.shape.filterCollideMask = CAT_BASE | CAT_ARM;
+
+      // add joints as constraints
+      baseAggregate.body.addConstraint(armAggregate.body, shoulderJoint);
+      armAggregate.body.addConstraint(forearmAggregate.body, elbowJoint);
+
+      const shoulderTorqueInput = document.getElementById("shoulderTorque");
+      const shoulderTorqueValue = document.getElementById("shoulderTorqueValue");
+      const elbowTorqueInput = document.getElementById("elbowTorque");
+      const elbowTorqueValue = document.getElementById("elbowTorqueValue");
+      const reverseBtn = document.getElementById("reverseBtn");
+
+      let shoulderTorque = parseFloat(shoulderTorqueInput.value);
+      let elbowTorque = parseFloat(elbowTorqueInput.value);
+
+      function updateTorqueView() {
+        shoulderTorqueValue.textContent = shoulderTorque.toFixed(1);
+        elbowTorqueValue.textContent = elbowTorque.toFixed(1);
+      }
+
+      shoulderTorqueInput.addEventListener("input", () => {
+        shoulderTorque = parseFloat(shoulderTorqueInput.value);
+        updateTorqueView();
+      });
+
+      elbowTorqueInput.addEventListener("input", () => {
+        elbowTorque = parseFloat(elbowTorqueInput.value);
+        updateTorqueView();
+      });
+
+      reverseBtn.addEventListener("click", () => {
+        shoulderTorque *= -1;
+        elbowTorque *= -1;
+        shoulderTorqueInput.value = String(shoulderTorque);
+        elbowTorqueInput.value = String(elbowTorque);
+        updateTorqueView();
+      });
+
+      // 力制御: 肩と肘へ独立したトルクを継続的に印加
+      const applyJointTorque = () => {
+        armAggregate.body.applyTorque(new BABYLON.Vector3(0, 0, shoulderTorque));
+        forearmAggregate.body.applyTorque(new BABYLON.Vector3(0, 0, elbowTorque));
+      };
+      if (scene.onBeforePhysicsObservable) {
+        scene.onBeforePhysicsObservable.add(applyJointTorque);
+      } else {
+        scene.onBeforeRenderObservable.add(applyJointTorque);
+      }
+
+      updateTorqueView();
+
+      engine.runRenderLoop(() => {
+        scene.render();
+      });
+
+      window.addEventListener("resize", () => {
+        engine.resize();
+      });
+    }
+
+    main().catch((error) => {
+      console.error("Failed to initialize Babylon Havok scene:", error);
+    });
+  </script>
+</body>
+</html>
