@@ -528,6 +528,27 @@
       }
     }
   </style>
+  <script src="../../libs/message_pool.js"> </script>
+  <script src="../../libs/init_client.js"> </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', (e) => {
+        setupMessageBuffer(20);
+        let title_str;
+        if ( myGlobal.connection_type == 'browser' ) {
+            title_str = (' : ' + window.name);
+        } else {
+            myGlobal.connection_type
+            title_str = ' / <a href=https://' + myGlobal.connection_addr + '>https://' + myGlobal.connection_addr + '</a>';
+        }
+        let node_text = document.getElementById("node-title-text");
+        if (node_text) {
+            node_text.innerHTML = title_str;
+        }
+        //myGlobal.BM.msg_pool.subscribe('vibration', (msg) => {
+        //    genVibration(msg);
+        //});
+    });
+  </script>
 </head>
 <body>
   <main class="wrap">
@@ -561,7 +582,7 @@
           <div class="title-panel">
             <div>
               <h2 class="title">Virtual Joypad</h2>
-              <p class="subtitle"> </p>
+              <p class="subtitle"> <span id="node-title-text"></span> </p>
             </div>
             <div class="badge" id="touchBadge">touches: 0</div>
           </div>
@@ -668,6 +689,7 @@
     function render() {
       //statusEl.textContent = JSON.stringify(state, null, 2);
       console.log(state);
+      myGlobal.BM.msg_pool.publish('joy', state);
     }
 
     const getFullscreenElement = () => (
