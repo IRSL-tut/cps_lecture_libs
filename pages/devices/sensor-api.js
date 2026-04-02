@@ -1,5 +1,8 @@
 const startBtn = document.getElementById("startBtn");
 const statusEl = document.getElementById("status");
+const sensorPickerEl = document.getElementById("sensorPicker");
+const cancelSelectBtn = document.getElementById("cancelSelectBtn");
+const confirmSelectBtn = document.getElementById("confirmSelectBtn");
 
 const setText = (id, value) => {
   const el = document.getElementById(id);
@@ -90,6 +93,64 @@ const startGyroscope = () => {
   sensors.push(sensor);
 };
 
+const startAmbientLight = () => {
+  if (typeof AmbientLightSensor === "undefined") {
+    setText("alsLux", "Unsupported");
+    return;
+  }
+  const sensor = new AmbientLightSensor({ frequency: 10 });
+  sensor.addEventListener("reading", () => {
+    setText("alsLux", fmt(sensor.illuminance, "lux"));
+    setText("alsT", fmt(sensor.timestamp, "ms"));
+    myGlobal.BM.msg_pool.publish('ambient', [sensor.illuminance, sensor.timestamp]);
+  });
+  sensor.addEventListener("error", (event) => {
+    statusEl.textContent = `Ambient light error: ${event.error?.message || "unknown"}`;
+  });
+  sensor.start();
+  sensors.push(sensor);
+};
+
+const startGravity = () => {
+  if (typeof GravitySensor === "undefined") {
+    setText("gravX", "Unsupported");
+    return;
+  }
+  const sensor = new GravitySensor({ frequency: 60 });
+  sensor.addEventListener("reading", () => {
+    setText("gravX", fmt(sensor.x, "m/s^2"));
+    setText("gravY", fmt(sensor.y, "m/s^2"));
+    setText("gravZ", fmt(sensor.z, "m/s^2"));
+    setText("gravT", fmt(sensor.timestamp, "ms"));
+    myGlobal.BM.msg_pool.publish('gravity', [sensor.x, sensor.y, sensor.z, sensor.timestamp]);
+  });
+  sensor.addEventListener("error", (event) => {
+    statusEl.textContent = `Gravity error: ${event.error?.message || "unknown"}`;
+  });
+  sensor.start();
+  sensors.push(sensor);
+};
+
+const startMagnetometer = () => {
+  if (typeof Magnetometer === "undefined") {
+    setText("magX", "Unsupported");
+    return;
+  }
+  const sensor = new Magnetometer({ frequency: 60 });
+  sensor.addEventListener("reading", () => {
+    setText("magX", fmt(sensor.x, "uT"));
+    setText("magY", fmt(sensor.y, "uT"));
+    setText("magZ", fmt(sensor.z, "uT"));
+    setText("magT", fmt(sensor.timestamp, "ms"));
+    myGlobal.BM.msg_pool.publish('magnet', [sensor.x, sensor.y, sensor.z, sensor.timestamp]);
+  });
+  sensor.addEventListener("error", (event) => {
+    statusEl.textContent = `Magnetometer error: ${event.error?.message || "unknown"}`;
+  });
+  sensor.start();
+  sensors.push(sensor);
+};
+
 const startAbsoluteOrientation = () => {
   if (typeof AbsoluteOrientationSensor === "undefined") {
     setText("absQuat", "Unsupported");
@@ -126,10 +187,44 @@ const startRelativeOrientation = () => {
   sensors.push(sensor);
 };
 
-const startAll = () => {
+const sensorStarters = {
+  accelerometer: startAccelerometer,
+  linearAcceleration: startLinearAcceleration,
+  gyroscope: startGyroscope,
+  ambientLight: startAmbientLight,
+  gravity: startGravity,
+  magnetometer: startMagnetometer,
+  absoluteOrientation: startAbsoluteOrientation,
+  relativeOrientation: startRelativeOrientation,
+};
+
+const openSensorPicker = () => {
+  sensorPickerEl.classList.add("open");
+  statusEl.textContent = "Select sensors to start";
+};
+
+const closeSensorPicker = () => {
+  sensorPickerEl.classList.remove("open");
+};
+
+const getSelectedSensors = () => {
+  const selected = [];
+  const checkboxes = sensorPickerEl.querySelectorAll('input[name="sensor"]:checked');
+  checkboxes.forEach((checkbox) => {
+    selected.push(checkbox.value);
+  });
+  return selected;
+};
+
+const startSelected = (selectedSensors) => {
   myGlobal.BM.msg_pool.publish('log', 'start-button');
   if (!window.isSecureContext) {
     statusEl.textContent = "Sensor APIs require HTTPS";
+    return;
+  }
+
+  if (!selectedSensors.length) {
+    statusEl.textContent = "Select at least one sensor";
     return;
   }
 
@@ -137,11 +232,12 @@ const startAll = () => {
   statusEl.textContent = "Starting sensors...";
 
   try {
-    startAccelerometer();
-    startLinearAcceleration();
-    startGyroscope();
-    startAbsoluteOrientation();
-    startRelativeOrientation();
+    selectedSensors.forEach((sensorName) => {
+      const startSensor = sensorStarters[sensorName];
+      if (startSensor) {
+        startSensor();
+      }
+    });
 
     statusEl.textContent = "Sensors active";
   } catch (err) {
@@ -150,7 +246,28 @@ const startAll = () => {
   }
 };
 
-startBtn.addEventListener("click", startAll);
+startBtn.addEventListener("click", () => {
+  if (!window.isSecureContext) {
+    statusEl.textContent = "Sensor APIs require HTTPS";
+    return;
+  }
+  openSensorPicker();
+});
+
+cancelSelectBtn.addEventListener("click", () => {
+  closeSensorPicker();
+  statusEl.textContent = "Start canceled";
+});
+
+confirmSelectBtn.addEventListener("click", () => {
+  const selectedSensors = getSelectedSensors();
+  if (!selectedSensors.length) {
+    statusEl.textContent = "Select at least one sensor";
+    return;
+  }
+  closeSensorPicker();
+  startSelected(selectedSensors);
+});
 
 window.addEventListener("pagehide", () => {
   stopAll();
