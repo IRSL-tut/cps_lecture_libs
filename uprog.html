@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>uProg</title>
+    <link rel="stylesheet" href="uprog.css">
+    <!-- first script / myGlobal is the global variable in this environment -->
+    <script>
+      const myGlobal = {};
+    </script>
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          // initial script
+          initializeUprog(myGlobal);
+      });
+    </script>
+  </head>
+  <body>
+    <div class="app">
+      <header class="toolbar">
+        <div class="toolbar__title">uProg</div>
+        <div class="toolbar__buttons">
+          <button class="toolbar__button" data-view="intro">Intro</button>
+          <button class="toolbar__button" data-view="demo">Demo</button>
+          <button class="toolbar__button" data-view="notes">Notes</button>
+        </div>
+      </header>
+
+      <main class="split" aria-label="split view">
+        <section class="pane pane--left" id="leftPane">
+          <div class="pane__content" id="leftContent"></div>
+        </section>
+        <div class="divider" id="divider" role="separator" aria-orientation="vertical" aria-label="resize"></div>
+        <section class="pane pane--right" id="rightPane">
+          <div class="pane__content" id="rightContent"></div>
+        </section>
+      </main>
+
+      <footer class="footer">uProg footer</footer>
+    </div>
+
+    <!-- Basic Toolbox Categories -->
+    <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
+      <category name="Logic" colour="%{BKY_LOGIC_HUE}">
+        <block type="controls_if"></block>
+        <block type="logic_compare"></block>
+      </category>
+    </xml>
+    <script src="uprog.js"></script>
+  </body>
+</html>

@@ -1,0 +1,130 @@
+:root {
+  --toolbar-h: 10vh;
+  --footer-h: 5vh;
+  --split-h: 185vh;
+  --divider-w: 10px;
+  --left-w: 50%;
+  --bg: #f6f1e8;
+  --panel: #fff9f0;
+  --ink: #1b1b1b;
+  --accent: #c14b1a;
+  --accent-2: #283c8a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Georgia", "Times New Roman", serif;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  height: var(--toolbar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  background: linear-gradient(135deg, #f4e3cc, #f7d3b8);
+  border-bottom: 2px solid #e2c6a6;
+}
+
+.toolbar__title {
+  font-size: 1.2rem;
+  letter-spacing: 0.08rem;
+  text-transform: uppercase;
+}
+
+.toolbar__buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.toolbar__button {
+  border: 2px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border-radius: 999px;
+}
+
+.toolbar__button.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.split {
+  height: var(--split-h);
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.pane {
+  min-width: 120px;
+  background: var(--panel);
+  padding: 18px;
+  overflow: auto;
+}
+
+.pane--left {
+  width: var(--left-w);
+  border-right: 1px solid #e2c6a6;
+}
+
+.pane--right {
+  width: calc(100% - var(--left-w) - var(--divider-w));
+  border-left: 1px solid #e2c6a6;
+}
+
+.pane__content h3 {
+  margin-top: 0;
+  color: var(--accent-2);
+}
+
+.divider {
+  width: var(--divider-w);
+  background: repeating-linear-gradient(
+    90deg,
+    #d4b28b,
+    #d4b28b 2px,
+    #f0dbc1 2px,
+    #f0dbc1 6px
+  );
+  cursor: col-resize;
+}
+
+.footer {
+  height: var(--footer-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  background: linear-gradient(135deg, #f7d3b8, #f4e3cc);
+  border-top: 2px solid #e2c6a6;
+}
+
+@media (max-width: 900px) {
+  .toolbar {
+    padding: 0 12px;
+  }
+
+  .toolbar__buttons {
+    gap: 6px;
+  }
+
+  .pane {
+    padding: 12px;
+  }
+}
