@@ -66,6 +66,16 @@ function canvas_event_pos(e) {
   return { x: x, y: y };
 }
 
+function canvas_touch_pos(e) {
+  const touch = e.touches[0] || e.changedTouches[0];
+  if (!touch) {
+    return null;
+  }
+  const x = touch.clientX - canvas_elem.getBoundingClientRect().left;
+  const y = touch.clientY - canvas_elem.getBoundingClientRect().top;
+  return { x: x, y: y };
+}
+
 function strPair(pos) {
   return `(${pos.x}, ${pos.y})`;
 }
@@ -76,8 +86,15 @@ function showMessage(message) {
   document.getElementById('message').innerHTML = message;
 }
 
+function getMessagePointerElement() {
+  return document.getElementById('messageTouch') || document.getElementById('messageMouse');
+}
+
 function showMessageMouse(message) {
-  document.getElementById('messageMouse').innerHTML = message;
+  const target = getMessagePointerElement();
+  if (target) {
+    target.innerHTML = message;
+  }
 }
 
 //// send Methods
@@ -102,7 +119,10 @@ function sendClickMessage(pos) {
 function sendMoveMessage(pos) {
   const message = `mousemove${strPair(pos)}`;
   showMessageMouse(message);
-  document.getElementById('messageMouseMove').innerHTML = message;
+  const moveTarget = document.getElementById('messageMouseMove');
+  if (moveTarget) {
+    moveTarget.innerHTML = message;
+  }
 }
 
 //// receive Methods
@@ -196,6 +216,53 @@ function canvas_init() {
       canvas_old_move(cur_pos);
     }
   });
+
+  canvas_elem.addEventListener('touchstart', (e) => {
+    const cur_pos = canvas_touch_pos(e);
+    if (!cur_pos) {
+      return;
+    }
+    e.preventDefault();
+    showMessage(`touchstart${strPair(cur_pos)}`);
+    showMessageMouse(`touchstart${strPair(cur_pos)}`);
+    if (canvas_mouse_down_func) {
+      canvas_mouse_down_func(cur_pos);
+    }
+    if (canvas_use_local_echo_flag) {
+      canvas_old_down(cur_pos);
+    }
+  }, { passive: false });
+
+  canvas_elem.addEventListener('touchend', (e) => {
+    const cur_pos = canvas_touch_pos(e);
+    if (!cur_pos) {
+      return;
+    }
+    e.preventDefault();
+    showMessage(`touchend${strPair(cur_pos)}`);
+    showMessageMouse(`touchend${strPair(cur_pos)}`);
+    if (canvas_mouse_up_func) {
+      canvas_mouse_up_func(cur_pos);
+    }
+    if (canvas_use_local_echo_flag) {
+      canvas_old_up(cur_pos);
+    }
+  }, { passive: false });
+
+  canvas_elem.addEventListener('touchmove', (e) => {
+    const cur_pos = canvas_touch_pos(e);
+    if (!cur_pos) {
+      return;
+    }
+    e.preventDefault();
+    showMessageMouse(`touchmove${strPair(cur_pos)}`);
+    if (canvas_mouse_move_func) {
+      canvas_mouse_move_func(cur_pos);
+    }
+    if (canvas_use_local_echo_flag) {
+      canvas_old_move(cur_pos);
+    }
+  }, { passive: false });
 
   let print_echo = document.getElementById("print_echo");
   if (print_echo) {
