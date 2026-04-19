@@ -91,67 +91,71 @@ function initializeUprog(myGlobal) {
   };
 
   myGlobal.workspaceThemes = {
-    program: typeof my_theme !== 'undefined' ? my_theme : Blockly.Themes.Classic,
+    program: prog_theme,
     plot: myGlobal.defineTheme('uprog_plot_theme', {
-      logicPrimary: '#4d7fa8',
-      logicSecondary: '#d6e7f4',
-      logicTertiary: '#365c7d',
-      loopPrimary: '#5c9a8f',
-      loopSecondary: '#d9efeb',
-      loopTertiary: '#3f6f67',
-      mathPrimary: '#6b6fb4',
-      mathSecondary: '#dfe0f8',
-      mathTertiary: '#4e5287',
-      textPrimary: '#4f92a1',
-      textSecondary: '#d9edf1',
-      textTertiary: '#3a6a74',
-      variablePrimary: '#8d68b3',
-      variableSecondary: '#e8def5',
-      variableTertiary: '#684d86',
-      procedurePrimary: '#be6f91',
-      procedureSecondary: '#f8e0eb',
-      procedureTertiary: '#8f526d',
-      workspaceBackgroundColour: '#edf6fd',
-      toolboxBackgroundColour: '#d5e8f7',
-      toolboxForegroundColour: '#1d4f71',
-      flyoutBackgroundColour: '#f5fbff',
-      flyoutForegroundColour: '#1d4f71',
-      scrollbarColour: '#7da9c8',
-      insertionMarkerColour: '#27577c',
-      cursorColour: '#27577c',
-      blackBackground: '#d8e8f3',
+      logicPrimary: '#707070',
+      logicSecondary: '#e2e2e2',
+      logicTertiary: '#515151',
+      loopPrimary: '#7b7b7b',
+      loopSecondary: '#ebebeb',
+      loopTertiary: '#5c5c5c',
+      mathPrimary: '#666666',
+      mathSecondary: '#dddddd',
+      mathTertiary: '#474747',
+      textPrimary: '#8a8a8a',
+      textSecondary: '#f1f1f1',
+      textTertiary: '#6a6a6a',
+      variablePrimary: '#757575',
+      variableSecondary: '#e7e7e7',
+      variableTertiary: '#565656',
+      procedurePrimary: '#616161',
+      procedureSecondary: '#d9d9d9',
+      procedureTertiary: '#444444',
+      workspaceBackgroundColour: '#efefef',
+      toolboxBackgroundColour: '#d6d6d6',
+      toolboxForegroundColour: '#242424',
+      flyoutBackgroundColour: '#fbfbfb',
+      flyoutForegroundColour: '#242424',
+      scrollbarColour: '#979797',
+      insertionMarkerColour: '#363636',
+      cursorColour: '#363636',
+      blackBackground: '#d3d3d3',
     }),
     notes: myGlobal.defineTheme('uprog_notes_theme', {
-      logicPrimary: '#91713a',
-      logicSecondary: '#f4ead2',
-      logicTertiary: '#6f562b',
-      loopPrimary: '#8d8050',
-      loopSecondary: '#f2eedb',
-      loopTertiary: '#6b613b',
-      mathPrimary: '#a66a4d',
-      mathSecondary: '#fae5d9',
-      mathTertiary: '#7d4f3a',
-      textPrimary: '#7f8c53',
-      textSecondary: '#edf1db',
-      textTertiary: '#5d693d',
-      variablePrimary: '#8b6177',
-      variableSecondary: '#f1dfe8',
-      variableTertiary: '#68485a',
-      procedurePrimary: '#6b7a92',
-      procedureSecondary: '#dfe6f0',
-      procedureTertiary: '#4f5a6c',
-      workspaceBackgroundColour: '#fff8e4',
-      toolboxBackgroundColour: '#f1e1b9',
-      toolboxForegroundColour: '#6f5223',
-      flyoutBackgroundColour: '#fffcee',
-      flyoutForegroundColour: '#6f5223',
-      scrollbarColour: '#c49b4e',
-      insertionMarkerColour: '#8a6320',
-      cursorColour: '#8a6320',
-      blackBackground: '#ead8aa',
+      logicPrimary: '#4d4d4d',
+      logicSecondary: '#cfcfcf',
+      logicTertiary: '#363636',
+      loopPrimary: '#5b5b5b',
+      loopSecondary: '#d9d9d9',
+      loopTertiary: '#414141',
+      mathPrimary: '#696969',
+      mathSecondary: '#e3e3e3',
+      mathTertiary: '#4c4c4c',
+      textPrimary: '#7a7a7a',
+      textSecondary: '#ededed',
+      textTertiary: '#5b5b5b',
+      variablePrimary: '#636363',
+      variableSecondary: '#dfdfdf',
+      variableTertiary: '#464646',
+      procedurePrimary: '#555555',
+      procedureSecondary: '#d5d5d5',
+      procedureTertiary: '#3b3b3b',
+      workspaceBackgroundColour: '#f6f6f6',
+      toolboxBackgroundColour: '#cdcdcd',
+      toolboxForegroundColour: '#1f1f1f',
+      flyoutBackgroundColour: '#fdfdfd',
+      flyoutForegroundColour: '#1f1f1f',
+      scrollbarColour: '#8b8b8b',
+      insertionMarkerColour: '#2a2a2a',
+      cursorColour: '#2a2a2a',
+      blackBackground: '#c9c9c9',
     }),
   };
-
+  myGlobal.workspaceToolbox = {
+    program: prog_toolbox,
+    plot: document.getElementById('toolbox'),
+    notes: document.getElementById('toolbox'),
+  };
   myGlobal.viewHasWorkspace = function viewHasWorkspace(name) {
     return ['program', 'plot', 'notes'].includes(name);
   };
@@ -448,12 +452,14 @@ function initializeUprog(myGlobal) {
     }
 
     const profileTheme = myGlobal.workspaceThemes[viewName];
-    const options = {
-      toolbox: document.getElementById('toolbox'),
-    };
+    const profileToolbox = myGlobal.workspaceToolbox[viewName];
+    const options = { };
 
     if (profileTheme) {
       options.theme = profileTheme;
+    }
+    if (profileToolbox) {
+      options.toolbox = profileToolbox;
     }
 
     myGlobal.blockly_workspace = Blockly.inject('blocklyDiv', options);

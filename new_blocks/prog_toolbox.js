@@ -1,4 +1,4 @@
-const my_toolbox = {
+const prog_toolbox = {
   kind: 'categoryToolbox',
   contents: [
     {

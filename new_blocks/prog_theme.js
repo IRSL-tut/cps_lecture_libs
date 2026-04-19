@@ -1,4 +1,4 @@
-var my_theme = Blockly.Theme.defineTheme('modern', {
+var prog_theme = Blockly.Theme.defineTheme('modern', {
   base: Blockly.Themes.Classic,
   blockStyles: {
     colour_blocks: {
