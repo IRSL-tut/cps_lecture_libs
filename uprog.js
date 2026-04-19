@@ -6,6 +6,7 @@ function initializeUprog(myGlobal) {
   myGlobal.rightContent = document.getElementById('rightContent');
   myGlobal.divider = document.getElementById('divider');
   myGlobal.status = document.getElementById('appStatus');
+  myGlobal.toolbarTitle = document.querySelector('.toolbar__title');
   myGlobal.navButtons = document.querySelectorAll('.toolbar__nav-button');
   myGlobal.runStopButton = document.getElementById('run-stop-button');
   myGlobal.stepSlider = document.getElementById('step_num');
@@ -162,15 +163,18 @@ function initializeUprog(myGlobal) {
 
   myGlobal.views = {
     program: {
-      left: '<h3>Program Workspace</h3><div id="blocklyDiv"></div><p>The main programming workspace uses the default uProg theme.</p>',
+      title: 'Program Workspace',
+      left: '<div id="blocklyDiv"></div>',
       right: '<h3>Right: Checklist</h3><ul><li>Read the brief</li><li>Open the demo</li><li>Start coding</li></ul>',
     },
     plot: {
-      left: '<h3>Plot Workspace</h3><div id="blocklyDiv"></div><p>This workspace uses a cooler palette so it is visually distinct from Prog.</p>',
+      title: 'Plot Workspace',
+      left: '<div id="blocklyDiv"></div>',
       right: '<h3>Right: Output</h3><p>Try editing the code and run the sample.</p>',
     },
     notes: {
-      left: '<h3>Notes Workspace</h3><div id="blocklyDiv"></div><p>This workspace uses a warmer note-like theme.</p>',
+      title: 'Notes Workspace',
+      left: '<div id="blocklyDiv"></div>',
       right: '<h3>Right: Tasks</h3><ol><li>Test the API</li><li>Record results</li><li>Share feedback</li></ol>',
     },
   };
@@ -341,17 +345,12 @@ function initializeUprog(myGlobal) {
     }
 
     const initApi = function initApi(interpreter, globalObject) {
-      interpreter.setProperty(globalObject, 'blockFuncs', interpreter.nativeToPseudo(myGlobal.blockFuncs));
-      interpreter.setProperty(
-        globalObject,
-        'alert',
-        interpreter.createNativeFunction((text) => window.alert(text)),
-      );
-      interpreter.setProperty(
-        globalObject,
-        'prompt',
-        interpreter.createNativeFunction((text) => window.prompt(text)),
-      );
+      interpreter.setProperty(globalObject, 'blockFuncs',
+                              interpreter.nativeToPseudo(myGlobal.blockFuncs));
+      interpreter.setProperty(globalObject, 'alert',
+        interpreter.createNativeFunction((text) => window.alert(text)), );
+      interpreter.setProperty(globalObject, 'prompt',
+        interpreter.createNativeFunction((text) => window.prompt(text)), );
     };
 
     myGlobal.enableHighlight = myGlobal.highlightCheck.checked;
@@ -492,6 +491,10 @@ function initializeUprog(myGlobal) {
     }
 
     myGlobal.currentView = nextView;
+    if (myGlobal.toolbarTitle) {
+      myGlobal.toolbarTitle.textContent = view.title || 'uProg';
+    }
+    myGlobal.leftPane.classList.toggle('pane--workspace', myGlobal.viewHasWorkspace(myGlobal.currentView));
     myGlobal.leftContent.innerHTML = view.left;
     myGlobal.rightContent.innerHTML = view.right;
 
@@ -536,9 +539,11 @@ function initializeUprog(myGlobal) {
 
   myGlobal.runStopButton.addEventListener('click', () => {
     if (myGlobal.isRunning) {
+      console.log('runStopButton: stop');
       myGlobal.stopExecution('Stopped');
       return;
     }
+    console.log('runStopButton: run');
     myGlobal.runBlocks();
   });
 

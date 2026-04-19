@@ -177,6 +177,22 @@ body {
   border-right: 1px solid var(--line);
 }
 
+.pane--workspace {
+  padding: 0;
+  overflow: hidden;
+}
+
+.pane--workspace .pane__content {
+  height: 100%;
+}
+
+.pane--workspace #blocklyDiv {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
 .pane--right {
   width: calc(100% - var(--left-w) - var(--divider-w));
   border-left: 1px solid var(--line);
