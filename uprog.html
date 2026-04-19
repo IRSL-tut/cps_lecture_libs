@@ -14,10 +14,14 @@
     <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
     <script src="https://unpkg.com/blockly/msg/en.js"></script>
     <script src="pages/thirdparty/acorn_interpreter.js"></script>
+    <script src="./libs/message_pool.js"></script>
+    <script src="./libs/init_client.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
           // initial script
           initializeUprog(myGlobal);
+          //
+          setupMessageBuffer(myGlobal, 100);
       });
     </script>
   </head>
@@ -63,6 +67,7 @@
         </div>
 
         <div class="toolbar__title">uProg</div>
+        <span id="node-status"></span>
 
         <!-- mode buttons -->
         <div class="toolbar__views">

@@ -464,7 +464,14 @@ function initializeUprog(myGlobal) {
 
     const profileTheme = myGlobal.workspaceThemes[viewName];
     const profileToolbox = myGlobal.workspaceToolbox[viewName];
-    const options = { };
+    const options = {
+      grid: {
+        spacing: 15,
+        length: 2,
+        colour: "#ccc",
+        snap: true,
+      },
+    };
 
     if (profileTheme) {
       options.theme = profileTheme;
