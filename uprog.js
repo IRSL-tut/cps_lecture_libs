@@ -24,18 +24,149 @@ function initializeUprog(myGlobal) {
   myGlobal.isRunning = false;
   myGlobal.enableHighlight = false;
   myGlobal.stepNum = Number(myGlobal.stepSlider.value) || 1;
+  myGlobal.workspaceXmlByView = {
+    program: '',
+    plot: '',
+    notes: '',
+  };
+
+  myGlobal.defineTheme = function defineTheme(name, palette) {
+    if (typeof Blockly === 'undefined' || !Blockly.Theme || !Blockly.Themes) {
+      return null;
+    }
+
+    return Blockly.Theme.defineTheme(name, {
+      base: Blockly.Themes.Classic,
+      blockStyles: {
+        logic_blocks: {
+          colourPrimary: palette.logicPrimary,
+          colourSecondary: palette.logicSecondary,
+          colourTertiary: palette.logicTertiary,
+        },
+        loop_blocks: {
+          colourPrimary: palette.loopPrimary,
+          colourSecondary: palette.loopSecondary,
+          colourTertiary: palette.loopTertiary,
+        },
+        math_blocks: {
+          colourPrimary: palette.mathPrimary,
+          colourSecondary: palette.mathSecondary,
+          colourTertiary: palette.mathTertiary,
+        },
+        text_blocks: {
+          colourPrimary: palette.textPrimary,
+          colourSecondary: palette.textSecondary,
+          colourTertiary: palette.textTertiary,
+        },
+        variable_blocks: {
+          colourPrimary: palette.variablePrimary,
+          colourSecondary: palette.variableSecondary,
+          colourTertiary: palette.variableTertiary,
+        },
+        procedure_blocks: {
+          colourPrimary: palette.procedurePrimary,
+          colourSecondary: palette.procedureSecondary,
+          colourTertiary: palette.procedureTertiary,
+        },
+      },
+      componentStyles: {
+        workspaceBackgroundColour: palette.workspaceBackgroundColour,
+        toolboxBackgroundColour: palette.toolboxBackgroundColour,
+        toolboxForegroundColour: palette.toolboxForegroundColour,
+        flyoutBackgroundColour: palette.flyoutBackgroundColour,
+        flyoutForegroundColour: palette.flyoutForegroundColour,
+        flyoutOpacity: 0.94,
+        scrollbarColour: palette.scrollbarColour,
+        insertionMarkerColour: palette.insertionMarkerColour,
+        insertionMarkerOpacity: 0.25,
+        scrollbarOpacity: 0.45,
+        cursorColour: palette.cursorColour,
+        blackBackground: palette.blackBackground,
+      },
+      fontStyle: {
+        family: 'Georgia, Times New Roman, serif',
+      },
+      startHats: null,
+    });
+  };
+
+  myGlobal.workspaceThemes = {
+    program: typeof my_theme !== 'undefined' ? my_theme : Blockly.Themes.Classic,
+    plot: myGlobal.defineTheme('uprog_plot_theme', {
+      logicPrimary: '#4d7fa8',
+      logicSecondary: '#d6e7f4',
+      logicTertiary: '#365c7d',
+      loopPrimary: '#5c9a8f',
+      loopSecondary: '#d9efeb',
+      loopTertiary: '#3f6f67',
+      mathPrimary: '#6b6fb4',
+      mathSecondary: '#dfe0f8',
+      mathTertiary: '#4e5287',
+      textPrimary: '#4f92a1',
+      textSecondary: '#d9edf1',
+      textTertiary: '#3a6a74',
+      variablePrimary: '#8d68b3',
+      variableSecondary: '#e8def5',
+      variableTertiary: '#684d86',
+      procedurePrimary: '#be6f91',
+      procedureSecondary: '#f8e0eb',
+      procedureTertiary: '#8f526d',
+      workspaceBackgroundColour: '#edf6fd',
+      toolboxBackgroundColour: '#d5e8f7',
+      toolboxForegroundColour: '#1d4f71',
+      flyoutBackgroundColour: '#f5fbff',
+      flyoutForegroundColour: '#1d4f71',
+      scrollbarColour: '#7da9c8',
+      insertionMarkerColour: '#27577c',
+      cursorColour: '#27577c',
+      blackBackground: '#d8e8f3',
+    }),
+    notes: myGlobal.defineTheme('uprog_notes_theme', {
+      logicPrimary: '#91713a',
+      logicSecondary: '#f4ead2',
+      logicTertiary: '#6f562b',
+      loopPrimary: '#8d8050',
+      loopSecondary: '#f2eedb',
+      loopTertiary: '#6b613b',
+      mathPrimary: '#a66a4d',
+      mathSecondary: '#fae5d9',
+      mathTertiary: '#7d4f3a',
+      textPrimary: '#7f8c53',
+      textSecondary: '#edf1db',
+      textTertiary: '#5d693d',
+      variablePrimary: '#8b6177',
+      variableSecondary: '#f1dfe8',
+      variableTertiary: '#68485a',
+      procedurePrimary: '#6b7a92',
+      procedureSecondary: '#dfe6f0',
+      procedureTertiary: '#4f5a6c',
+      workspaceBackgroundColour: '#fff8e4',
+      toolboxBackgroundColour: '#f1e1b9',
+      toolboxForegroundColour: '#6f5223',
+      flyoutBackgroundColour: '#fffcee',
+      flyoutForegroundColour: '#6f5223',
+      scrollbarColour: '#c49b4e',
+      insertionMarkerColour: '#8a6320',
+      cursorColour: '#8a6320',
+      blackBackground: '#ead8aa',
+    }),
+  };
+
+  myGlobal.viewHasWorkspace = function viewHasWorkspace(name) {
+    return ['program', 'plot', 'notes'].includes(name);
+  };
 
   myGlobal.views = {
     program: {
-      left: '<h3>Left: Overview</h3><div id="blocklyDiv"></div><p>Welcome to uProg. Use the divider to resize the panels.</p>',
+      left: '<h3>Program Workspace</h3><div id="blocklyDiv"></div><p>The main programming workspace uses the default uProg theme.</p>',
       right: '<h3>Right: Checklist</h3><ul><li>Read the brief</li><li>Open the demo</li><li>Start coding</li></ul>',
     },
     plot: {
-      left: '<h3>Left: Overview</h3><div id="blocklyDiv"></div><p>Welcome to uProg. Use the divider to resize the panels.</p>',
+      left: '<h3>Plot Workspace</h3><div id="blocklyDiv"></div><p>This workspace uses a cooler palette so it is visually distinct from Prog.</p>',
       right: '<h3>Right: Output</h3><p>Try editing the code and run the sample.</p>',
     },
     notes: {
-      left: '<h3>Left: Notes</h3><p>Keep your notes here for quick reference.</p>',
+      left: '<h3>Notes Workspace</h3><div id="blocklyDiv"></div><p>This workspace uses a warmer note-like theme.</p>',
       right: '<h3>Right: Tasks</h3><ol><li>Test the API</li><li>Record results</li><li>Share feedback</li></ol>',
     },
   };
@@ -84,16 +215,16 @@ function initializeUprog(myGlobal) {
   };
 
   myGlobal.updateControlState = function updateControlState() {
-    const inProgramView = myGlobal.currentView === 'program' && Boolean(myGlobal.blockly_workspace);
+    const hasWorkspace = myGlobal.viewHasWorkspace(myGlobal.currentView) && Boolean(myGlobal.blockly_workspace);
     const disableWhileRunning = myGlobal.isRunning;
 
-    myGlobal.runStopButton.disabled = !inProgramView;
-    myGlobal.stepSlider.disabled = !inProgramView;
-    myGlobal.highlightCheck.disabled = !inProgramView;
-    myGlobal.uploadButton.disabled = !inProgramView || disableWhileRunning;
-    myGlobal.mergeCheck.disabled = !inProgramView || disableWhileRunning;
-    myGlobal.downloadButton.disabled = !inProgramView || disableWhileRunning;
-    myGlobal.clearButton.disabled = !inProgramView || disableWhileRunning;
+    myGlobal.runStopButton.disabled = !hasWorkspace;
+    myGlobal.stepSlider.disabled = !hasWorkspace;
+    myGlobal.highlightCheck.disabled = !hasWorkspace;
+    myGlobal.uploadButton.disabled = !hasWorkspace || disableWhileRunning;
+    myGlobal.mergeCheck.disabled = !hasWorkspace || disableWhileRunning;
+    myGlobal.downloadButton.disabled = !hasWorkspace || disableWhileRunning;
+    myGlobal.clearButton.disabled = !hasWorkspace || disableWhileRunning;
   };
 
   myGlobal.updateSplit = function updateSplit(clientX) {
@@ -157,6 +288,30 @@ function initializeUprog(myGlobal) {
     myGlobal.updateRunButton();
     myGlobal.updateControlState();
     myGlobal.setStatus(message);
+  };
+
+  myGlobal.saveCurrentWorkspace = function saveCurrentWorkspace() {
+    if (!myGlobal.blockly_workspace || !myGlobal.viewHasWorkspace(myGlobal.currentView)) {
+      return;
+    }
+
+    const xml = Blockly.Xml.workspaceToDom(myGlobal.blockly_workspace);
+    myGlobal.workspaceXmlByView[myGlobal.currentView] = Blockly.Xml.domToText(xml);
+  };
+
+  myGlobal.restoreWorkspace = function restoreWorkspace(viewName) {
+    const xmlText = myGlobal.workspaceXmlByView[viewName];
+    if (!myGlobal.blockly_workspace || !xmlText) {
+      return;
+    }
+
+    try {
+      const xml = Blockly.utils.xml.textToDom(xmlText);
+      Blockly.Xml.domToWorkspace(xml, myGlobal.blockly_workspace);
+    } catch (error) {
+      console.error(error);
+      myGlobal.setStatus(`Failed to restore ${viewName} workspace`);
+    }
   };
 
   myGlobal.generateCode = function generateCode(addHighlight) {
@@ -236,12 +391,18 @@ function initializeUprog(myGlobal) {
 
     const reader = new FileReader();
     reader.onload = function onLoad() {
-      const xml = Blockly.utils.xml.textToDom(reader.result);
-      if (!myGlobal.mergeCheck.checked) {
-        myGlobal.blockly_workspace.clear();
+      try {
+        const xml = Blockly.utils.xml.textToDom(reader.result);
+        if (!myGlobal.mergeCheck.checked) {
+          myGlobal.blockly_workspace.clear();
+        }
+        Blockly.Xml.domToWorkspace(xml, myGlobal.blockly_workspace);
+        myGlobal.saveCurrentWorkspace();
+        myGlobal.setStatus(`Loaded ${file.name} into ${myGlobal.currentView}`);
+      } catch (error) {
+        console.error(error);
+        myGlobal.setStatus(`Upload failed: ${error.message}`);
       }
-      Blockly.Xml.domToWorkspace(xml, myGlobal.blockly_workspace);
-      myGlobal.setStatus(`Loaded ${file.name}`);
     };
     reader.readAsText(file);
   };
@@ -258,7 +419,7 @@ function initializeUprog(myGlobal) {
     const link = document.createElement('a');
 
     document.body.appendChild(link);
-    link.download = 'uprog_blocks.xml';
+    link.download = `uprog_${myGlobal.currentView}_blocks.xml`;
     link.href = url;
     link.click();
     link.remove();
@@ -271,10 +432,11 @@ function initializeUprog(myGlobal) {
       return;
     }
     myGlobal.blockly_workspace.clear();
+    myGlobal.saveCurrentWorkspace();
     myGlobal.setStatus('Workspace cleared');
   };
 
-  myGlobal.createWorkspace = function createWorkspace() {
+  myGlobal.createWorkspace = function createWorkspace(viewName = myGlobal.currentView) {
     const blocklyDiv = document.getElementById('blocklyDiv');
     if (!blocklyDiv || typeof Blockly === 'undefined' || typeof Blockly.inject !== 'function') {
       myGlobal.setStatus('Blockly failed to initialize');
@@ -285,30 +447,51 @@ function initializeUprog(myGlobal) {
       myGlobal.blockly_workspace.dispose();
     }
 
-    myGlobal.blockly_workspace = Blockly.inject('blocklyDiv', {
+    const profileTheme = myGlobal.workspaceThemes[viewName];
+    const options = {
       toolbox: document.getElementById('toolbox'),
+    };
+
+    if (profileTheme) {
+      options.theme = profileTheme;
+    }
+
+    myGlobal.blockly_workspace = Blockly.inject('blocklyDiv', options);
+    myGlobal.blockly_workspace.addChangeListener((event) => {
+      if (event && event.isUiEvent) {
+        return;
+      }
+      myGlobal.saveCurrentWorkspace();
     });
+    myGlobal.restoreWorkspace(viewName);
     myGlobal.resizeBlocklyDiv();
   };
 
   myGlobal.setView = function setView(name) {
-    const view = myGlobal.views[name] || myGlobal.views.program;
+    const nextView = myGlobal.views[name] ? name : 'program';
+    const view = myGlobal.views[nextView];
 
-    if (myGlobal.currentView === 'program' && name !== 'program') {
-      myGlobal.stopExecution('Stopped');
-      if (myGlobal.blockly_workspace) {
-        myGlobal.blockly_workspace.dispose();
-        myGlobal.blockly_workspace = null;
-      }
+    if (myGlobal.currentView === nextView) {
+      return;
     }
 
-    myGlobal.currentView = myGlobal.views[name] ? name : 'program';
+    if (myGlobal.isRunning && myGlobal.currentView !== nextView) {
+      myGlobal.stopExecution('Stopped');
+    }
+
+    if (myGlobal.blockly_workspace) {
+      myGlobal.saveCurrentWorkspace();
+      myGlobal.blockly_workspace.dispose();
+      myGlobal.blockly_workspace = null;
+    }
+
+    myGlobal.currentView = nextView;
     myGlobal.leftContent.innerHTML = view.left;
     myGlobal.rightContent.innerHTML = view.right;
 
-    if (myGlobal.currentView === 'program') {
-      myGlobal.createWorkspace();
-      myGlobal.setStatus('Program view ready');
+    if (myGlobal.viewHasWorkspace(myGlobal.currentView)) {
+      myGlobal.createWorkspace(myGlobal.currentView);
+      myGlobal.setStatus(`${myGlobal.currentView} workspace ready`);
     }
 
     myGlobal.navButtons.forEach((button) => {
