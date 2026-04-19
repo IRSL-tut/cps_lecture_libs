@@ -31,7 +31,7 @@ function initializeUprog(myGlobal) {
       right: '<h3>Right: Checklist</h3><ul><li>Read the brief</li><li>Open the demo</li><li>Start coding</li></ul>',
     },
     plot: {
-      left: '<h3>Left: Demo Code</h3><pre>function add(a, b) {\n  return a + b;\n}</pre>',
+      left: '<h3>Left: Overview</h3><div id="blocklyDiv"></div><p>Welcome to uProg. Use the divider to resize the panels.</p>',
       right: '<h3>Right: Output</h3><p>Try editing the code and run the sample.</p>',
     },
     notes: {
