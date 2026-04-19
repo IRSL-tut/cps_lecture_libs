@@ -9,7 +9,11 @@
     <script>
       const myGlobal = {};
     </script>
-    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/msg/en.js"></script>
+    <script src="pages/thirdparty/acorn_interpreter.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
           // initial script
@@ -19,12 +23,52 @@
   </head>
   <body>
     <div class="app">
+      <!-- ToolBar -->
       <header class="toolbar">
+        <!-- control buttons -->
+        <div class="toolbar__controls" aria-label="workspace controls">
+          <button
+            class="toolbar__button toolbar__button--run"
+            id="run-stop-button"
+            type="button"
+            title="Run blocks"
+            aria-label="Run blocks"
+            aria-pressed="false"
+          >
+            <span class="toolbar__icon toolbar__icon--play" aria-hidden="true"></span>
+            <span class="toolbar__button-text">Run</span>
+          </button>
+
+          <label class="toolbar__control toolbar__control--slider" for="step_num" title="Set the number of interpreter steps per cycle">
+            <span class="toolbar__control-label">step_num</span>
+            <input type="range" id="step_num" min="1" max="20" step="1" value="1">
+            <output id="step_num-value" for="step_num">1</output>
+          </label>
+
+          <label class="toolbar__control toolbar__control--check" for="highlight-check" title="Toggle block highlight while running">
+            <input type="checkbox" id="highlight-check">
+            <span>highlight</span>
+          </label>
+
+          <button class="toolbar__button" id="upload-button" type="button" title="Upload block XML">Upload</button>
+
+          <label class="toolbar__control toolbar__control--check" for="merge-check" title="Merge uploaded blocks into the current workspace">
+            <input type="checkbox" id="merge-check">
+            <span>merge</span>
+          </label>
+
+          <button class="toolbar__button" id="download-button" type="button" title="Download block XML">Download</button>
+          <button class="toolbar__button" id="clear_block-button" type="button" title="Clear all blocks">Clear</button>
+          <input type="file" id="upload-file-input" accept=".xml,text/xml" hidden>
+        </div>
+
         <div class="toolbar__title">uProg</div>
-        <div class="toolbar__buttons">
-          <button class="toolbar__button" data-view="intro">Intro</button>
-          <button class="toolbar__button" data-view="demo">Demo</button>
-          <button class="toolbar__button" data-view="notes">Notes</button>
+
+        <!-- mode buttons -->
+        <div class="toolbar__views">
+          <button class="toolbar__button toolbar__nav-button" data-view="program" type="button">Prog</button>
+          <button class="toolbar__button toolbar__nav-button" data-view="plot" type="button">Plot</button>
+          <button class="toolbar__button toolbar__nav-button" data-view="notes" type="button">Notes</button>
         </div>
       </header>
 
@@ -38,7 +82,7 @@
         </section>
       </main>
 
-      <footer class="footer">uProg footer</footer>
+      <footer class="footer" id="appStatus">Ready</footer>
     </div>
 
     <!-- Basic Toolbox Categories -->
@@ -48,6 +92,8 @@
         <block type="logic_compare"></block>
       </category>
     </xml>
+
+    <!-- script loading -->
     <script src="uprog.js"></script>
   </body>
 </html>

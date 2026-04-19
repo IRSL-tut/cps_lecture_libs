@@ -1,7 +1,6 @@
 :root {
-  --toolbar-h: 10vh;
-  --footer-h: 5vh;
-  --split-h: 185vh;
+  --toolbar-h: 88px;
+  --footer-h: 40px;
   --divider-w: 10px;
   --left-w: 50%;
   --bg: #f6f1e8;
@@ -9,6 +8,11 @@
   --ink: #1b1b1b;
   --accent: #c14b1a;
   --accent-2: #283c8a;
+  --line: #e2c6a6;
+  --soft: #f3e2cf;
+  --success: #2f7a38;
+  --warn: #9a5a12;
+  --error: #9b2525;
 }
 
 * {
@@ -29,34 +33,46 @@ body {
 }
 
 .toolbar {
-  height: var(--toolbar-h);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+  min-height: var(--toolbar-h);
+  padding: 12px 20px;
   background: linear-gradient(135deg, #f4e3cc, #f7d3b8);
-  border-bottom: 2px solid #e2c6a6;
+  border-bottom: 2px solid var(--line);
 }
 
 .toolbar__title {
   font-size: 1.2rem;
   letter-spacing: 0.08rem;
   text-transform: uppercase;
+  color: var(--accent-2);
+  white-space: nowrap;
 }
 
-.toolbar__buttons {
+.toolbar__controls,
+.toolbar__views {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
 .toolbar__button {
   border: 2px solid var(--accent);
-  background: transparent;
+  background: rgba(255, 249, 240, 0.7);
   color: var(--accent);
   padding: 6px 12px;
   font-size: 0.9rem;
   cursor: pointer;
   border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
 }
 
 .toolbar__button.is-active {
@@ -64,15 +80,93 @@ body {
   color: #fff;
 }
 
+.toolbar__button:hover:not(:disabled) {
+  background: var(--accent);
+  color: #fff;
+}
+
+.toolbar__button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.toolbar__button--run[data-running="true"] {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.toolbar__button--run[data-running="true"]:hover:not(:disabled) {
+  background: var(--error);
+  color: #fff;
+}
+
+.toolbar__icon {
+  display: inline-block;
+  flex: 0 0 auto;
+}
+
+.toolbar__icon--play {
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 13px solid currentColor;
+}
+
+.toolbar__icon--stop {
+  width: 13px;
+  height: 13px;
+  background: currentColor;
+}
+
+.toolbar__control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 249, 240, 0.82);
+}
+
+.toolbar__control-label {
+  font-size: 0.9rem;
+  color: var(--accent-2);
+}
+
+.toolbar__control--slider input[type="range"] {
+  width: 120px;
+  accent-color: var(--accent);
+}
+
+.toolbar__control output {
+  min-width: 1.5rem;
+  text-align: center;
+  color: var(--accent-2);
+  font-weight: 700;
+}
+
+.toolbar__control--check input {
+  accent-color: var(--accent);
+}
+
+#blocklyDiv {
+  min-width: 240px;
+  min-height: 220px;
+}
+
 .split {
-  height: var(--split-h);
   display: flex;
+  flex: 1;
+  min-height: 0;
   align-items: stretch;
   overflow: hidden;
 }
 
 .pane {
   min-width: 120px;
+  min-height: 0;
   background: var(--panel);
   padding: 18px;
   overflow: auto;
@@ -80,12 +174,12 @@ body {
 
 .pane--left {
   width: var(--left-w);
-  border-right: 1px solid #e2c6a6;
+  border-right: 1px solid var(--line);
 }
 
 .pane--right {
   width: calc(100% - var(--left-w) - var(--divider-w));
-  border-left: 1px solid #e2c6a6;
+  border-left: 1px solid var(--line);
 }
 
 .pane__content h3 {
@@ -112,16 +206,44 @@ body {
   justify-content: center;
   font-size: 0.85rem;
   background: linear-gradient(135deg, #f7d3b8, #f4e3cc);
-  border-top: 2px solid #e2c6a6;
+  border-top: 2px solid var(--line);
+  padding: 0 16px;
+}
+
+.footer[data-tone="running"] {
+  color: var(--success);
+}
+
+.footer[data-tone="done"] {
+  color: var(--accent-2);
+}
+
+.footer[data-tone="warn"] {
+  color: var(--warn);
+}
+
+.footer[data-tone="error"] {
+  color: var(--error);
 }
 
 @media (max-width: 900px) {
   .toolbar {
-    padding: 0 12px;
+    padding: 12px;
   }
 
-  .toolbar__buttons {
+  .toolbar__controls,
+  .toolbar__views {
     gap: 6px;
+  }
+
+  .toolbar__control--slider {
+    width: 100%;
+    justify-content: space-between;
+    border-radius: 18px;
+  }
+
+  .toolbar__control--slider input[type="range"] {
+    flex: 1;
   }
 
   .pane {
