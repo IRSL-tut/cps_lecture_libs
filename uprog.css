@@ -13,6 +13,8 @@
   --success: #3f3f3f;
   --warn: #5f5f5f;
   --error: #202020;
+  --run-green: #1f8f45;
+  --stop-red: #c2382b;
 }
 
 * {
@@ -90,13 +92,23 @@ body {
   cursor: not-allowed;
 }
 
+.toolbar__button--run[data-running="false"] {
+  border-color: var(--run-green);
+  color: var(--run-green);
+}
+
+.toolbar__button--run[data-running="false"]:hover:not(:disabled) {
+  background: var(--run-green);
+  color: #fff;
+}
+
 .toolbar__button--run[data-running="true"] {
-  border-color: var(--error);
-  color: var(--error);
+  border-color: var(--stop-red);
+  color: var(--stop-red);
 }
 
 .toolbar__button--run[data-running="true"]:hover:not(:disabled) {
-  background: var(--error);
+  background: var(--stop-red);
   color: #fff;
 }
 
