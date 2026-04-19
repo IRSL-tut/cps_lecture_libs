@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>uProg</title>
+    <link rel="stylesheet" href="uprog.css">
+    <!-- first script / myGlobal is the global variable in this environment -->
+    <script>
+      const myGlobal = {};
+    </script>
+    <script src="https://unpkg.com/blockly/blockly_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/blocks_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/javascript_compressed.js"></script>
+    <script src="https://unpkg.com/blockly/msg/en.js"></script>
+    <script src="thirdparty/acorn_interpreter.js"></script>
+    <script src="./libs/message_pool.js"></script>
+    <script src="./libs/init_client.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          // initial script
+          initializeUprog(myGlobal);
+          //
+          setupMessageBuffer(myGlobal, 100);
+      });
+    </script>
+  </head>
+  <body>
+    <div class="app">
+      <!-- ToolBar -->
+      <header class="toolbar">
+        <!-- control buttons -->
+        <div class="toolbar__controls" aria-label="workspace controls">
+          <button
+            class="toolbar__button toolbar__button--run"
+            id="run-stop-button"
+            type="button"
+            title="Run blocks"
+            aria-label="Run blocks"
+            aria-pressed="false"
+          >
+            <span class="toolbar__icon toolbar__icon--play" aria-hidden="true"></span>
+            <span class="toolbar__button-text">Run</span>
+          </button>
+
+          <label class="toolbar__control toolbar__control--slider" for="step_num" title="Set the number of interpreter steps per cycle">
+            <span class="toolbar__control-label">step_num</span>
+            <input type="range" id="step_num" min="-10" max="20" step="1" value="0">
+            <output id="step_num-value" for="step_num">0</output>
+          </label>
+
+          <label class="toolbar__control toolbar__control--check" for="highlight-check" title="Toggle block highlight while running">
+            <input type="checkbox" id="highlight-check">
+            <span>highlight</span>
+          </label>
+
+          <button class="toolbar__button" id="upload-button" type="button" title="Upload block XML">Upload</button>
+
+          <label class="toolbar__control toolbar__control--check" for="merge-check" title="Merge uploaded blocks into the current workspace">
+            <input type="checkbox" id="merge-check">
+            <span>merge</span>
+          </label>
+
+          <button class="toolbar__button" id="download-button" type="button" title="Download block XML">Download</button>
+          <button class="toolbar__button" id="clear_block-button" type="button" title="Clear all blocks">Clear</button>
+          <input type="file" id="upload-file-input" accept=".xml,text/xml" hidden>
+        </div>
+
+        <div class="toolbar__title">uProg</div>
+        <span id="node-status"></span>
+
+        <!-- mode buttons -->
+        <div class="toolbar__views">
+          <button class="toolbar__button toolbar__nav-button" data-view="program" type="button">Prog</button>
+          <button class="toolbar__button toolbar__nav-button" data-view="plot" type="button">Plot</button>
+          <button class="toolbar__button toolbar__nav-button" data-view="notes" type="button">Notes</button>
+        </div>
+      </header>
+
+      <main class="split" aria-label="split view">
+        <section class="pane pane--left" id="leftPane">
+          <div class="pane__content" id="leftContent"></div>
+        </section>
+        <div class="divider" id="divider" role="separator" aria-orientation="vertical" aria-label="resize"></div>
+        <section class="pane pane--right" id="rightPane">
+          <div class="pane__content" id="rightContent"></div>
+        </section>
+      </main>
+
+      <footer class="footer" id="appStatus">Ready</footer>
+    </div>
+
+    <!-- Basic Toolbox Categories -->
+    <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
+      <category name="Logic" colour="%{BKY_LOGIC_HUE}">
+        <block type="controls_if"></block>
+        <block type="logic_compare"></block>
+      </category>
+    </xml>
+    <!-- prog blockly settings -->
+    <script src="./prog_blocks/prog_theme.js"></script>
+    <script src="./prog_blocks/prog_toolbox.js"></script>
+    <script src="./prog_blocks/prog_main.js"></script>
+    <script src="./prog_blocks/prog_blocks.js"></script>
+    <!-- plot blockly settings -->
+
+    <!-- script loading -->
+    <script src="mode_prog.js"></script>
+    <script src="uprog.js"></script>
+  </body>
+</html>

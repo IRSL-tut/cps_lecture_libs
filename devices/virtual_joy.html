@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Virtual Joypad</title>
+  <style>
+    :root {
+      --bg: #f4efe6;
+      --panel: rgba(255, 255, 255, 0.72);
+      --panel-strong: rgba(255, 255, 255, 0.92);
+      --ink: #1f2a2f;
+      --muted: #4f5b63;
+      --accent: #0f8a7d;
+      --accent-strong: #0d6f65;
+      --danger: #d94848;
+      --line: rgba(31, 42, 47, 0.16);
+      --glow: 0 12px 28px rgba(20, 37, 53, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Alegreya Sans", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 460px at -20% -20%, #fff4d6 0%, rgba(255, 244, 214, 0) 70%),
+        radial-gradient(760px 480px at 120% -10%, #dcefff 0%, rgba(220, 239, 255, 0) 64%),
+        linear-gradient(165deg, #f8f4ec 0%, #e8eee8 100%);
+      overflow: hidden;
+    }
+
+    .wrap {
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 12px 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 100vh;
+    }
+
+    .title-panel {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0.2px;
+    }
+
+    .subtitle {
+      margin: 2px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 12px;
+      color: var(--muted);
+      padding: 6px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--panel-strong);
+    }
+
+    .pad {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .col {
+      display: grid;
+      gap: 10px;
+      min-height: 0;
+      align-content: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      box-shadow: var(--glow);
+      backdrop-filter: blur(8px);
+    }
+
+    .row {
+      display: grid;
+      gap: 8px;
+    }
+
+    .row.two {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .row.three {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .row.one {
+      grid-template-columns: 1fr;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-bottom-width: 3px;
+      border-radius: 12px;
+      padding: 12px 8px;
+      min-height: 46px;
+      background: linear-gradient(180deg, #fffefb 0%, #ecf1f1 100%);
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      box-shadow: 0 3px 6px rgba(10, 30, 44, 0.1);
+      transition: transform 100ms ease, box-shadow 120ms ease, background 120ms ease;
+      cursor: pointer;
+    }
+
+    .btn.small {
+      font-size: 14px;
+      min-height: 42px;
+      padding: 9px 6px;
+    }
+
+    .btn.active {
+      transform: translateY(2px) scale(0.985);
+      box-shadow: 0 1px 2px rgba(10, 30, 44, 0.12);
+      background: linear-gradient(180deg, #d6f4ef 0%, #bce9e1 100%);
+      border-color: rgba(15, 138, 125, 0.5);
+    }
+
+    .btn.toggle.on {
+      background: linear-gradient(180deg, #ffd8d8 0%, #ffc5c5 100%);
+      border-color: rgba(217, 72, 72, 0.5);
+      color: #5f1f1f;
+    }
+
+    .dpad {
+      display: grid;
+      gap: 8px;
+      grid-template-areas:
+        ". up ."
+        "left . right"
+        ". down .";
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .dpad .up { grid-area: up; }
+    .dpad .left { grid-area: left; }
+    .dpad .right { grid-area: right; }
+    .dpad .down { grid-area: down; }
+
+    .facepad {
+      display: grid;
+      gap: 8px;
+      grid-template-areas:
+        ". x ."
+        "y . a"
+        ". b .";
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .facepad .x { grid-area: x; }
+    .facepad .y { grid-area: y; }
+    .facepad .a { grid-area: a; }
+    .facepad .b { grid-area: b; }
+
+    .with-side {
+      display: grid;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .with-side.left-outside {
+      grid-template-columns: 84px 1fr;
+    }
+
+    .with-side.right-outside {
+      grid-template-columns: 1fr 84px;
+    }
+
+    .side-stack {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .side-stack.panel {
+      padding: 8px;
+    }
+
+    .side-button-panel {
+      display: grid;
+    }
+
+    .side-stack .btn,
+    .side-button-panel .btn {
+      height: 100%;
+    }
+
+    .axis-core {
+      min-width: 0;
+    }
+
+    .stick {
+      height: 170px;
+      border-radius: 14px;
+      border: 1px dashed rgba(31, 42, 47, 0.28);
+      background:
+        radial-gradient(circle at center, rgba(15, 138, 125, 0.14) 0%, rgba(15, 138, 125, 0) 60%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.54) 0%, rgba(242, 246, 246, 0.94) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stick-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0 0 6px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .slider-wrap {
+      display: grid;
+      gap: 6px;
+    }
+
+    .slider-wrap label {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+      text-transform: lowercase;
+      letter-spacing: 0.2px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      margin: 0;
+      accent-color: var(--accent);
+      min-height: 34px;
+    }
+
+    .center-tools {
+      display: grid;
+      gap: 8px;
+    }
+
+    .fullscreen-panel {
+      margin-top: 0;
+    }
+
+    .throttle-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .status {
+      font-family: "Menlo", "Consolas", monospace;
+      font-size: 12px;
+      line-height: 1.35;
+      color: #1d3a45;
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 8px;
+      white-space: pre-wrap;
+      max-height: 132px;
+      overflow: auto;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        overflow: auto;
+      }
+
+      .pad {
+        grid-template-columns: 1fr;
+      }
+
+      .throttle-row {
+        grid-template-columns: 1fr;
+      }
+
+      .with-side.left-outside,
+      .with-side.right-outside {
+        grid-template-columns: 1fr;
+      }
+
+      .side-stack {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+      }
+
+      .stick {
+        height: 150px;
+      }
+
+      .wrap {
+        padding-bottom: 18px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .wrap {
+        padding: 10px 10px 16px;
+        gap: 8px;
+      }
+
+      .panel {
+        padding: 8px;
+      }
+
+      .btn {
+        min-height: 42px;
+        font-size: 16px;
+        padding: 10px 7px;
+      }
+
+      .btn.small {
+        min-height: 38px;
+        font-size: 13px;
+      }
+
+      .status {
+        max-height: 112px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .title-panel {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .title {
+        font-size: 18px;
+      }
+
+      .subtitle {
+        font-size: 12px;
+      }
+
+      .badge {
+        font-size: 11px;
+        padding: 5px 7px;
+      }
+
+      .col,
+      .pad,
+      .with-side,
+      .center-tools,
+      .throttle-row {
+        gap: 8px;
+      }
+
+      .stick {
+        height: 132px;
+      }
+    }
+
+    @media (max-height: 505px) {
+      body {
+        overflow: auto;
+      }
+
+      .wrap {
+        min-height: auto;
+        padding-top: 8px;
+        padding-bottom: 10px;
+      }
+
+      .panel {
+        padding: 8px;
+      }
+
+      .col,
+      .with-side,
+      .center-tools,
+      .throttle-row,
+      .row,
+      .dpad,
+      .facepad,
+      .side-stack {
+        gap: 6px;
+      }
+
+      .btn {
+        min-height: 38px;
+        padding: 7px 6px;
+        font-size: 15px;
+      }
+
+      .btn.small {
+        min-height: 34px;
+        font-size: 12px;
+      }
+
+      .status {
+        max-height: 92px;
+      }
+    }
+
+    @media (max-height: 380px) {
+      body {
+        overflow: auto;
+      }
+
+      .wrap {
+        padding: 6px;
+        gap: 6px;
+        min-height: auto;
+      }
+
+      .panel {
+        padding: 6px;
+        border-radius: 10px;
+      }
+
+      .pad {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 6px;
+      }
+
+      .col,
+      .with-side,
+      .side-stack,
+      .center-tools,
+      .throttle-row,
+      .row,
+      .dpad,
+      .facepad {
+        gap: 6px;
+      }
+
+      .with-side.left-outside {
+        grid-template-columns: 66px 1fr;
+      }
+
+      .with-side.right-outside {
+        grid-template-columns: 1fr 66px;
+      }
+
+      .side-stack {
+        grid-template-rows: 1fr 1fr;
+      }
+
+      .throttle-row {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
+
+      .btn {
+        min-height: 32px;
+        font-size: 13px;
+        padding: 5px 4px;
+        border-radius: 8px;
+      }
+
+      .btn.small {
+        min-height: 28px;
+        font-size: 11px;
+        padding: 4px 3px;
+      }
+
+      .title {
+        font-size: 15px;
+      }
+
+      .subtitle {
+        font-size: 10px;
+      }
+
+      .badge {
+        font-size: 10px;
+        padding: 4px 6px;
+      }
+
+      .stick-label {
+        font-size: 11px;
+        margin-bottom: 4px;
+      }
+
+      .stick {
+        height: 150px;
+        border-radius: 10px;
+      }
+
+      .slider-wrap {
+        gap: 3px;
+      }
+
+      .slider-wrap label {
+        font-size: 10px;
+      }
+
+      input[type="range"] {
+        min-height: 22px;
+      }
+
+      .status {
+        max-height: 72px;
+        font-size: 10px;
+        padding: 5px;
+      }
+    }
+  </style>
+  <script>
+    const myGlobal = {};
+  </script>
+  <script src="../../libs/message_pool.js"> </script>
+  <script src="../../libs/init_client.js"> </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', (e) => {
+        setupMessageBuffer(myGlobal, 20);
+        let title_str;
+        if ( myGlobal.connection_type == 'browser' ) {
+            title_str = (' : ' + window.name);
+        } else {
+            myGlobal.connection_type
+            title_str = ' / <a href=https://' + myGlobal.connection_addr + '>https://' + myGlobal.connection_addr + '</a>';
+        }
+        let node_text = document.getElementById("node-title-text");
+        if (node_text) {
+            node_text.innerHTML = title_str;
+        }
+        //myGlobal.BM.msg_pool.subscribe('vibration', (msg) => {
+        //    genVibration(msg);
+        //});
+    });
+  </script>
+</head>
+<body>
+  <main class="wrap">
+    <section class="pad">
+      <div class="col">
+        <div class="with-side left-outside">
+          <div class="panel side-stack">
+            <button class="btn small hold" data-button="L1">L1</button>
+            <button class="btn small hold" data-button="L2">L2</button>
+          </div>
+          <div class="panel dpad">
+            <button class="btn hold up" data-button="up">up</button>
+            <button class="btn hold left" data-button="left">left</button>
+            <button class="btn hold right" data-button="right">right</button>
+            <button class="btn hold down" data-button="down">down</button>
+          </div>
+        </div>
+
+        <div class="with-side left-outside">
+          <div class="panel side-button-panel">
+            <button class="btn hold" data-button="btn-L">bL</button>
+          </div>
+          <div class="panel axis-core">
+            <div id="zone-left" class="stick"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="panel center-tools">
+          <div class="title-panel">
+            <div>
+              <h2 class="title">Virtual Joypad</h2>
+              <p class="subtitle"> <span id="node-title-text"></span> </p>
+            </div>
+            <div class="badge" id="touchBadge">touches: 0</div>
+          </div>
+        </div>
+
+        <div class="panel center-tools fullscreen-panel">
+          <div class="row one">
+            <button class="btn small" id="fullscreenBtn" type="button">fullscreen</button>
+          </div>
+        </div>
+
+        <div class="panel center-tools">
+          <div class="row two">
+            <button class="btn small hold" data-button="start">start</button>
+            <button class="btn small hold" data-button="select">select</button>
+          </div>
+        </div>
+
+        <div class="panel center-tools">
+          <div class="row three">
+            <button class="btn small toggle" data-toggle="T1">T1</button>
+            <button class="btn small toggle" data-toggle="T2">T2</button>
+            <button class="btn small toggle" data-toggle="T3">T3</button>
+          </div>
+        </div>
+
+        <!--div class="status" id="status"></div--><!-- for debug statusEl -->
+      </div>
+
+      <div class="col">
+        <div class="with-side right-outside">
+          <div class="panel facepad">
+            <button class="btn hold x" data-button="X">X</button>
+            <button class="btn hold y" data-button="Y">Y</button>
+            <button class="btn hold a" data-button="A">A</button>
+            <button class="btn hold b" data-button="B">B</button>
+          </div>
+          <div class="panel side-stack">
+            <button class="btn small hold" data-button="R1">R1</button>
+            <button class="btn small hold" data-button="R2">R2</button>
+          </div>
+        </div>
+
+        <div class="with-side right-outside">
+          <div class="panel axis-core">
+            <div id="zone-right" class="stick"></div>
+          </div>
+          <div class="panel side-button-panel">
+            <button class="btn hold" data-button="btn-R">bR</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel throttle-row">
+      <div class="slider-wrap">
+        <label for="throttleR">throttle-R</label>
+        <input id="throttleR" type="range" min="-100" max="100" step="1" value="0" data-throttle="throttle-R" />
+      </div>
+      <div class="slider-wrap">
+        <label for="throttleC">throttle-center</label>
+        <input id="throttleC" type="range" min="-100" max="100" step="1" value="0" data-throttle="throttle-center" />
+      </div>
+      <div class="slider-wrap">
+        <label for="throttleL">throttle-L</label>
+        <input id="throttleL" type="range" min="-100" max="100" step="1" value="0" data-throttle="throttle-L" />
+      </div>
+    </section>
+  </main>
+
+  <script src="../thirdparty/nipplejs/dist/index.js"></script>
+  <script>
+    const state = {
+      buttons: {},
+      toggles: { T1: false, T2: false, T3: false },
+      throttles: {
+        "throttle-R": 0,
+        "throttle-center": 0,
+        "throttle-L": 0
+      },
+      sticks: {
+        "axis-L": { x: 0, y: 0, force: 0, angle: 0 },
+        "axis-R": { x: 0, y: 0, force: 0, angle: 0 }
+      },
+      touches: 0
+    };
+
+    //const statusEl = document.getElementById("status");
+    const touchBadge = document.getElementById("touchBadge");
+    const fullscreenBtn = document.getElementById("fullscreenBtn");
+    const activePointers = new Set();
+
+    function updateTouchBadge() {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      touchBadge.textContent = `touches: ${state.touches} | window: ${width}x${height}`;
+    }
+
+    function syncTouches() {
+      state.touches = activePointers.size;
+      updateTouchBadge();
+    }
+
+    function render() {
+      //statusEl.textContent = JSON.stringify(state, null, 2);
+      console.log(state);
+      myGlobal.BM.msg_pool.publish('joy', state);
+    }
+
+    const getFullscreenElement = () => (
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      null
+    );
+
+    const requestFullscreen = async () => {
+      const root = document.documentElement;
+      if (root.requestFullscreen) return root.requestFullscreen();
+      if (root.webkitRequestFullscreen) return root.webkitRequestFullscreen();
+      throw new Error("Fullscreen API is not supported");
+    };
+
+    const exitFullscreen = async () => {
+      if (document.exitFullscreen) return document.exitFullscreen();
+      if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
+      throw new Error("Fullscreen API is not supported");
+    };
+
+    const updateFullscreenButtonLabel = () => {
+      fullscreenBtn.textContent = getFullscreenElement() ? "exit fullscreen" : "fullscreen";
+    };
+
+    fullscreenBtn.addEventListener("click", async () => {
+      try {
+        if (getFullscreenElement()) {
+          await exitFullscreen();
+        } else {
+          await requestFullscreen();
+        }
+      } catch (err) {
+        statusEl.textContent = `Fullscreen error: ${err.message}`;
+      }
+      updateFullscreenButtonLabel();
+    });
+
+    document.addEventListener("fullscreenchange", updateFullscreenButtonLabel);
+    document.addEventListener("webkitfullscreenchange", updateFullscreenButtonLabel);
+    updateFullscreenButtonLabel();
+
+    const holdButtons = Array.from(document.querySelectorAll(".hold[data-button]"));
+    const toggleButtons = Array.from(document.querySelectorAll(".toggle[data-toggle]"));
+    const throttleInputs = Array.from(document.querySelectorAll("input[data-throttle]"));
+
+    holdButtons.forEach((btn) => {
+      const name = btn.dataset.button;
+      state.buttons[name] = false;
+
+      const onDown = (ev) => {
+        ev.preventDefault();
+        btn.setPointerCapture(ev.pointerId);
+        activePointers.add(ev.pointerId);
+        syncTouches();
+        state.buttons[name] = true;
+        btn.classList.add("active");
+        render();
+      };
+
+      const onUp = (ev) => {
+        ev.preventDefault();
+        activePointers.delete(ev.pointerId);
+        syncTouches();
+        state.buttons[name] = false;
+        btn.classList.remove("active");
+        render();
+      };
+
+      btn.addEventListener("pointerdown", onDown);
+      btn.addEventListener("pointerup", onUp);
+      btn.addEventListener("pointercancel", onUp);
+      btn.addEventListener("lostpointercapture", onUp);
+    });
+
+    const togglePointerMeta = new Map();
+
+    toggleButtons.forEach((btn) => {
+      const key = btn.dataset.toggle;
+      btn.classList.toggle("on", state.toggles[key]);
+
+      btn.addEventListener("pointerdown", (ev) => {
+        ev.preventDefault();
+        btn.setPointerCapture(ev.pointerId);
+        activePointers.add(ev.pointerId);
+        syncTouches();
+
+        togglePointerMeta.set(ev.pointerId, {
+          key,
+          canToggle: activePointers.size === 1
+        });
+
+        if (activePointers.size > 1) {
+          for (const pointerId of activePointers) {
+            const meta = togglePointerMeta.get(pointerId);
+            if (meta) meta.canToggle = false;
+          }
+        }
+
+        btn.classList.add("active");
+      });
+
+      const finishToggle = (ev) => {
+        ev.preventDefault();
+        const meta = togglePointerMeta.get(ev.pointerId);
+        togglePointerMeta.delete(ev.pointerId);
+
+        activePointers.delete(ev.pointerId);
+        syncTouches();
+
+        btn.classList.remove("active");
+
+        if (!meta || !meta.canToggle || activePointers.size > 0) {
+          return;
+        }
+
+        state.toggles[meta.key] = !state.toggles[meta.key];
+        btn.classList.toggle("on", state.toggles[meta.key]);
+        render();
+      };
+
+      btn.addEventListener("pointerup", finishToggle);
+      btn.addEventListener("pointercancel", finishToggle);
+      btn.addEventListener("lostpointercapture", finishToggle);
+    });
+
+    throttleInputs.forEach((input) => {
+      const key = input.dataset.throttle;
+      const update = () => {
+        state.throttles[key] = Number(input.value);
+        render();
+      };
+
+      input.addEventListener("input", update);
+      input.addEventListener("change", update);
+    });
+
+    const clamp = (value) => {
+      if (value > 1) return 1;
+      if (value < -1) return -1;
+      return value;
+    };
+
+    const makeStick = (nipple, zoneId, key) => {
+      const manager = nipple.create({
+        zone: document.getElementById(zoneId),
+        mode: "static",
+        position: { left: "50%", top: "50%" },
+        color: "#0f8a7d",
+        size: 115,
+        multitouch: false,
+        restOpacity: 0.5,
+        lockX: false,
+        lockY: false
+      });
+
+      manager.on("move", (evt) => {
+        const data = evt.data;
+
+        if (!data || !data.vector) return;
+
+        const x = clamp(data.vector.x);
+        const y = clamp(-data.vector.y);
+        const force = Math.min(1, data.force || 0);
+        const angle = data.angle ? data.angle.degree : 0;
+
+        state.sticks[key] = {
+          x: Number(x.toFixed(3)),
+          y: Number(y.toFixed(3)),
+          force: Number(force.toFixed(3)),
+          angle: Number((angle || 0).toFixed(1))
+        };
+
+        render();
+      });
+
+      manager.on("end", () => {
+        state.sticks[key] = { x: 0, y: 0, force: 0, angle: 0 };
+        render();
+      });
+
+      return manager;
+    };
+
+    const initSticks = () => {
+      const nipple = window.nipplejs;
+      if (!nipple || typeof nipple.create !== "function") {
+        statusEl.textContent = "Stick init error: nipplejs local file could not be loaded";
+        return;
+      }
+
+      makeStick(nipple, "zone-left", "axis-L");
+      makeStick(nipple, "zone-right", "axis-R");
+    };
+
+    initSticks();
+
+    document.addEventListener("pointerdown", (ev) => {
+      if (ev.target.closest("button") || ev.target.closest(".stick") || ev.target.closest("input")) {
+        return;
+      }
+      activePointers.add(ev.pointerId);
+      syncTouches();
+    });
+
+    const onDocPointerEnd = (ev) => {
+      activePointers.delete(ev.pointerId);
+      syncTouches();
+    };
+
+    document.addEventListener("pointerup", onDocPointerEnd);
+    document.addEventListener("pointercancel", onDocPointerEnd);
+    window.addEventListener("resize", updateTouchBadge);
+    window.addEventListener("orientationchange", updateTouchBadge);
+
+    updateTouchBadge();
+    render();
+  </script>
+</body>
+</html>
