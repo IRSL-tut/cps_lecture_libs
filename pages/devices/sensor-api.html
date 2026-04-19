@@ -145,11 +145,14 @@
       color: #1d2a44;
     }
   </style>
+  <script>
+    const myGlobal = {};
+  </script>
   <script src="../../libs/message_pool.js"> </script>
   <script src="../../libs/init_client.js"> </script>
   <script>
     document.addEventListener('DOMContentLoaded', (e) => {
-        setupMessageBuffer(20);
+        setupMessageBuffer(myGlobal, 20);
         let title_str;
         if ( myGlobal.connection_type == 'browser' ) {
             title_str = (' : ' + window.name);

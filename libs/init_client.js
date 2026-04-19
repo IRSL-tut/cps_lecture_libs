@@ -5,9 +5,6 @@ if (window.name) {
   document.title = window.name;
 }
 
-// global variables
-const myGlobal = {};
-
 function open_callback()
 {
   console.log('cb: open');
@@ -36,7 +33,7 @@ function error_callback()
 }
 
 // settings of myGlobal.BM
-function setupMessageBuffer(buffer_size=1, force_websocket=false)
+function setupMessageBuffer(myGlobal=myGlobal, buffer_size=1, force_websocket=false)
 {
   const url = new URL(window.location);
   const params = url.searchParams;

@@ -3,11 +3,14 @@
   <head>
     <meta charset="utf-8">
     <title>Sensor(Mouse)</title>
+    <script>
+      const myGlobal = {};
+    </script>
     <script src="../../libs/message_pool.js"></script>
     <script src="../../libs/init_client.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', (e) => {
-          setupMessageBuffer(100);
+          setupMessageBuffer(myGlobal, 100);
           let title_str;
           if ( myGlobal.connection_type == 'browser' ) {
               title_str = (' : ' + window.name) + (' : ' + myGlobal.connection_type);
