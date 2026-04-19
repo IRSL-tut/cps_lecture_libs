@@ -198,6 +198,37 @@ body {
   border-left: 1px solid var(--line);
 }
 
+.pane--program .pane__content {
+  height: 100%;
+}
+
+.program-mode {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.program-mode__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.program-mode__console {
+  flex: 2 1 66%;
+  min-height: 0;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #f3f3f3;
+  color: var(--ink);
+  font: 0.92rem/1.45 "Courier New", Courier, monospace;
+  resize: none;
+}
+
 .pane__content h3 {
   margin-top: 0;
   color: var(--accent-2);

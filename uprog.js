@@ -24,7 +24,9 @@ function initializeUprog(myGlobal) {
   myGlobal.executionTimer = null;
   myGlobal.isRunning = false;
   myGlobal.enableHighlight = false;
-  myGlobal.stepNum = Number(myGlobal.stepSlider.value) || 1;
+  myGlobal.stepNum = Number.isNaN(Number(myGlobal.stepSlider.value))
+    ? 0
+    : Number(myGlobal.stepSlider.value);
   myGlobal.workspaceXmlByView = {
     program: '',
     plot: '',
@@ -165,7 +167,9 @@ function initializeUprog(myGlobal) {
     program: {
       title: 'Program Workspace',
       left: '<div id="blocklyDiv"></div>',
-      right: '<h3>Right: Checklist</h3><ul><li>Read the brief</li><li>Open the demo</li><li>Start coding</li></ul>',
+      right: typeof myGlobal.getProgramModeRightPane === 'function'
+        ? myGlobal.getProgramModeRightPane()
+        : '<section class="program-mode"><div class="program-mode__actions"></div><textarea class="program-mode__console" id="console-string" spellcheck="false"></textarea></section>',
     },
     plot: {
       title: 'Plot Workspace',
@@ -179,14 +183,14 @@ function initializeUprog(myGlobal) {
     },
   };
 
-  myGlobal.blockFuncs = {
-    highlightBlock(id) {
-      if (!myGlobal.blockly_workspace || !myGlobal.enableHighlight) {
-        return;
-      }
-      myGlobal.blockly_workspace.highlightBlock(id);
-    },
-  };
+  // myGlobal.blockFuncs = {
+  //   highlightBlock(id) {
+  //     if (!myGlobal.blockly_workspace || !myGlobal.enableHighlight) {
+  //       return;
+  //     }
+  //     myGlobal.blockly_workspace.highlightBlock(id);
+  //   },
+  // };
 
   myGlobal.clamp = function clamp(value, min, max) {
     return Math.min(Math.max(value, min), max);
@@ -326,8 +330,8 @@ function initializeUprog(myGlobal) {
     if (!myGlobal.blockly_workspace || !Blockly.JavaScript) {
       return '';
     }
-    Blockly.JavaScript.addReservedWords('blockFuncs');
-    Blockly.JavaScript.STATEMENT_PREFIX = addHighlight ? 'blockFuncs.highlightBlock(%1);\n' : null;
+    Blockly.JavaScript.addReservedWords('progFuncs');
+    Blockly.JavaScript.STATEMENT_PREFIX = addHighlight ? 'progFuncs.highlightBlock(%1);\n' : null;
     const code = Blockly.JavaScript.workspaceToCode(myGlobal.blockly_workspace);
     Blockly.JavaScript.STATEMENT_PREFIX = null;
     return code;
@@ -345,8 +349,8 @@ function initializeUprog(myGlobal) {
     }
 
     const initApi = function initApi(interpreter, globalObject) {
-      interpreter.setProperty(globalObject, 'blockFuncs',
-                              interpreter.nativeToPseudo(myGlobal.blockFuncs));
+      interpreter.setProperty(globalObject, 'progFuncs',
+                              interpreter.nativeToPseudo(progFuncs));
       interpreter.setProperty(globalObject, 'alert',
         interpreter.createNativeFunction((text) => window.alert(text)), );
       interpreter.setProperty(globalObject, 'prompt',
@@ -365,9 +369,17 @@ function initializeUprog(myGlobal) {
         return;
       }
 
+      let stepCount;
+      let break_tm = 0;
+      if (myGlobal.stepNum <= 0) {
+        stepCount = 1;
+        break_tm = myGlobal.stepNum*-5;
+      } else {
+        stepCount = myGlobal.stepNum*myGlobal.stepNum; // ? scale
+      }
       let executed = 0;
       try {
-        while (executed < myGlobal.stepNum) {
+        while (executed < stepCount) {
           const hasMoreCode = myGlobal.currentInterpreter.step();
           if (!hasMoreCode) {
             myGlobal.stopExecution('Run complete');
@@ -381,7 +393,7 @@ function initializeUprog(myGlobal) {
         return;
       }
 
-      myGlobal.executionTimer = window.setTimeout(nextStep, 120);
+      myGlobal.executionTimer = window.setTimeout(nextStep, break_tm);
     };
 
     nextStep();
@@ -495,12 +507,16 @@ function initializeUprog(myGlobal) {
       myGlobal.toolbarTitle.textContent = view.title || 'uProg';
     }
     myGlobal.leftPane.classList.toggle('pane--workspace', myGlobal.viewHasWorkspace(myGlobal.currentView));
+    myGlobal.rightPane.classList.toggle('pane--program', myGlobal.currentView === 'program');
     myGlobal.leftContent.innerHTML = view.left;
     myGlobal.rightContent.innerHTML = view.right;
 
     if (myGlobal.viewHasWorkspace(myGlobal.currentView)) {
       myGlobal.createWorkspace(myGlobal.currentView);
       myGlobal.setStatus(`${myGlobal.currentView} workspace ready`);
+    }
+    if (myGlobal.currentView === 'program' && typeof myGlobal.setupProgramModePane === 'function') {
+      myGlobal.setupProgramModePane();
     }
 
     myGlobal.navButtons.forEach((button) => {
@@ -544,11 +560,14 @@ function initializeUprog(myGlobal) {
       return;
     }
     console.log('runStopButton: run');
+    console.log(progFuncs);
     myGlobal.runBlocks();
   });
 
   myGlobal.stepSlider.addEventListener('input', (event) => {
-    myGlobal.stepNum = Number(event.target.value) || 1;
+    myGlobal.stepNum = Number.isNaN(Number(event.target.value))
+      ? 0
+      : Number(event.target.value);
     myGlobal.stepValue.textContent = String(myGlobal.stepNum);
     if (!myGlobal.isRunning) {
       myGlobal.setStatus(`step_num=${myGlobal.stepNum}`);

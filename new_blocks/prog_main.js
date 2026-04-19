@@ -27,12 +27,12 @@ function write_clear() {
   elm.value = "";
 }
 function set_enable_highlight(enable) {
-  myGloabl.enable_highlight = enable;
+  myGloabl.enableHighlight = enable;
 }
 function my_highlight_block(id) {
   myGlobal.break_step += 1;
-  if (myGlobal.enable_highlight) {
-    return blockly_workspace.highlightBlock(id);
+  if (myGlobal.enableHighlight) {
+    return myGlobal.blockly_workspace.highlightBlock(id);
   }
 }
 function subscribe(topic, callback=null) {
