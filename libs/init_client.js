@@ -37,8 +37,9 @@ function setupMessageBuffer(myGlobal=myGlobal, buffer_size=1, force_websocket=fa
 {
   const url = new URL(window.location);
   const params = url.searchParams;
+  const hasWebSocketParams = ['host', 'port', 'ssl', 'auth', 'size'].some((key) => params.has(key));
 
-  if (force_websocket || params.size > 0 || !window.opener) {
+  if (force_websocket || hasWebSocketParams || !window.opener) {
     const wshost = (() => {
       let res = params.get('host');
       if (res) {

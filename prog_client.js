@@ -32,6 +32,7 @@ function initializeProgEnvironment(myGlobal) {
     plot: '',
     notes: '',
   };
+  myGlobal.initialProgramUrl = null;
 
   myGlobal.defineTheme = function defineTheme(name, palette) {
     if (typeof Blockly === 'undefined' || !Blockly.Theme || !Blockly.Themes) {
@@ -311,6 +312,58 @@ function initializeProgEnvironment(myGlobal) {
     myGlobal.workspaceXmlByView[myGlobal.currentView] = Blockly.Xml.domToText(xml);
   };
 
+  myGlobal.getInitialProgramUrl = function getInitialProgramUrl() {
+    const params = new URL(window.location.href).searchParams;
+    const keys = ['prog', 'prog_url', 'program', 'program_url'];
+
+    for (const key of keys) {
+      const value = params.get(key);
+      if (value) {
+        return value;
+      }
+    }
+
+    return null;
+  };
+
+  myGlobal.loadWorkspaceXmlText = function loadWorkspaceXmlText(xmlText, viewName = myGlobal.currentView, merge = false) {
+    if (!myGlobal.viewHasWorkspace(viewName)) {
+      throw new Error(`Unknown workspace view: ${viewName}`);
+    }
+
+    const xml = Blockly.utils.xml.textToDom(xmlText);
+    const normalizedXmlText = Blockly.Xml.domToText(xml);
+
+    if (myGlobal.currentView === viewName && myGlobal.blockly_workspace) {
+      if (!merge) {
+        myGlobal.blockly_workspace.clear();
+      }
+      Blockly.Xml.domToWorkspace(xml, myGlobal.blockly_workspace);
+      myGlobal.saveCurrentWorkspace();
+      return;
+    }
+
+    if (merge && myGlobal.workspaceXmlByView[viewName]) {
+      throw new Error(`Cannot merge into inactive ${viewName} workspace`);
+    }
+
+    myGlobal.workspaceXmlByView[viewName] = normalizedXmlText;
+  };
+
+  myGlobal.loadWorkspaceFromUrl = async function loadWorkspaceFromUrl(urlText, viewName = 'program') {
+    const resolvedUrl = new URL(urlText, window.location.href);
+    myGlobal.setStatus(`Loading ${viewName} workspace from URL...`);
+
+    const response = await fetch(resolvedUrl.toString());
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const xmlText = await response.text();
+    myGlobal.loadWorkspaceXmlText(xmlText, viewName, false);
+    myGlobal.setStatus(`Loaded ${viewName} workspace from ${resolvedUrl.pathname || resolvedUrl.href}`);
+  };
+
   myGlobal.restoreWorkspace = function restoreWorkspace(viewName) {
     const xmlText = myGlobal.workspaceXmlByView[viewName];
     if (!myGlobal.blockly_workspace || !xmlText) {
@@ -407,12 +460,7 @@ function initializeProgEnvironment(myGlobal) {
     const reader = new FileReader();
     reader.onload = function onLoad() {
       try {
-        const xml = Blockly.utils.xml.textToDom(reader.result);
-        if (!myGlobal.mergeCheck.checked) {
-          myGlobal.blockly_workspace.clear();
-        }
-        Blockly.Xml.domToWorkspace(xml, myGlobal.blockly_workspace);
-        myGlobal.saveCurrentWorkspace();
+        myGlobal.loadWorkspaceXmlText(reader.result, myGlobal.currentView, myGlobal.mergeCheck.checked);
         myGlobal.setStatus(`Loaded ${file.name} into ${myGlobal.currentView}`);
       } catch (error) {
         console.error(error);
@@ -616,5 +664,13 @@ function initializeProgEnvironment(myGlobal) {
   myGlobal.updateRunButton();
   myGlobal.stepValue.textContent = String(myGlobal.stepNum);
   myGlobal.setView('program');
+
+  myGlobal.initialProgramUrl = myGlobal.getInitialProgramUrl();
+  if (myGlobal.initialProgramUrl) {
+    myGlobal.loadWorkspaceFromUrl(myGlobal.initialProgramUrl, 'program').catch((error) => {
+      console.error(error);
+      myGlobal.setStatus(`Program URL load failed: ${error.message}`);
+    });
+  }
 }
 
