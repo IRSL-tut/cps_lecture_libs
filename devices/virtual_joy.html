@@ -21,8 +21,12 @@
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
+      /* リンク長押しのポップアップ（URL表示など）を無効化 */
+      -webkit-touch-callout: none;
+      /* テキストの選択・長押しメニューを無効化 */
       user-select: none;
       -webkit-user-select: none;
+      /* */
       touch-action: none;
     }
 
@@ -535,6 +539,12 @@
   <script src="../libs/init_client.js"> </script>
   <script>
     document.addEventListener('DOMContentLoaded', (e) => {
+        //
+        document.addEventListener('contextmenu', function(e) {
+            // コンテキストメニューの表示をキャンセル
+            e.preventDefault();
+        }, false);
+        //
         setupMessageBuffer(myGlobal, 20);
         let title_str;
         if ( myGlobal.connection_type == 'browser' ) {
