@@ -78,7 +78,7 @@
     const link = document.createElement('a');
 
     document.body.appendChild(link);
-    link.download = 'uprog_program.js';
+    link.download = 'irsl_prog.js';
     link.href = url;
     link.click();
     link.remove();

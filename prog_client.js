@@ -1,4 +1,4 @@
-function initializeUprog(myGlobal) {
+function initializeProgEnvironment(myGlobal) {
   myGlobal.rootStyle = document.documentElement.style;
   myGlobal.leftPane = document.getElementById('leftPane');
   myGlobal.rightPane = document.getElementById('rightPane');
@@ -95,7 +95,7 @@ function initializeUprog(myGlobal) {
 
   myGlobal.workspaceThemes = {
     program: prog_theme,
-    plot: myGlobal.defineTheme('uprog_plot_theme', {
+    plot: myGlobal.defineTheme('plot_theme', {
       logicPrimary: '#707070',
       logicSecondary: '#e2e2e2',
       logicTertiary: '#515151',
@@ -124,7 +124,7 @@ function initializeUprog(myGlobal) {
       cursorColour: '#363636',
       blackBackground: '#d3d3d3',
     }),
-    notes: myGlobal.defineTheme('uprog_notes_theme', {
+    notes: myGlobal.defineTheme('notes_theme', {
       logicPrimary: '#4d4d4d',
       logicSecondary: '#cfcfcf',
       logicTertiary: '#363636',
@@ -434,7 +434,7 @@ function initializeUprog(myGlobal) {
     const link = document.createElement('a');
 
     document.body.appendChild(link);
-    link.download = `uprog_${myGlobal.currentView}_blocks.xml`;
+    link.download = `prog_${myGlobal.currentView}_blocks.xml`;
     link.href = url;
     link.click();
     link.remove();
@@ -511,7 +511,7 @@ function initializeUprog(myGlobal) {
 
     myGlobal.currentView = nextView;
     if (myGlobal.toolbarTitle) {
-      myGlobal.toolbarTitle.textContent = view.title || 'uProg';
+      myGlobal.toolbarTitle.textContent = view.title || 'ProgrammingEnvironment';
     }
     myGlobal.leftPane.classList.toggle('pane--workspace', myGlobal.viewHasWorkspace(myGlobal.currentView));
     myGlobal.rightPane.classList.toggle('pane--program', myGlobal.currentView === 'program');
