@@ -50,7 +50,7 @@ under construction
 
 ### ビジュアルプログラム基礎
 
-[サンプルプログラム(IF文)](samples/prog/sample_if.xml) [open](prog_client.html?prog=prsamples/prog/sample_if.xml)
+[サンプルプログラム(IF文)](samples/prog/sample_if.xml) [open](prog_client.html?prog=samples/prog/sample_if.xml)
 
 [サンプルプログラム(変数)](samples/prog/variable.xml) [open](prog_client.html?prog=samples/prog/variable.xml)
 
