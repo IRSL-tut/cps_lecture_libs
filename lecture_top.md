@@ -62,9 +62,24 @@ under construction
 
 [サンプルプログラム(石とりゲーム)](samples/prog/stone_game.xml) [open](prog_client.html?prog=samples/prog/stone_game.xml)
 
+
 ### 出版購読型通信
 
-under construction
+プログラムはダウンロードして読み込んで下さい(通信する必要があるため)
+
+[サンプルブロック(購読プログラム)](samples/pubsub/subscribe_echo.xml)
+
+[サンプルブロック(購読-出版プログラム)](samples/pubsub/subscribe_publish.xml)
+
+[マウスセンサーを使う](samples/pubsub/get_mouse_message.xml)
+
+[キャンバスデバイスを使う](samples/pubsub/send_canvas_message.xml)
+
+[出版購読通信によるセンサデバイスフィードバック](samples/pubsub/sensor_device_feedback.xml)
+
+<!-- [サンプルブロック(遠隔手続き実行クライアント)](samples/pubsub/action_client.xml)-->
+
+<!-- [サンプルブロック(遠隔手続き実行サーバー)](samples/pubsub/action_server.xml)-->
 
 ### プロットの表示
 
