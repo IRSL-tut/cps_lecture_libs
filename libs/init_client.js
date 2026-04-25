@@ -114,7 +114,7 @@ function setupMessageBuffer(myGlobal=myGlobal, buffer_size=1, force_websocket=fa
   } else {
     myGlobal.opener = window.opener;
     myGlobal.BM = new BrowserMessage(myGlobal.opener, buffer_size);
-    myGlobal.BM.msg_pool.debug = false;
+    myGlobal.BM.msg_pool.debug = true;
     myGlobal.connection_type = 'browser';
   }
 };

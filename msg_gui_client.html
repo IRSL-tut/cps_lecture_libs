@@ -15,7 +15,7 @@
           setupMessageBuffer(myGlobal, 20);
           let title_str;
           if ( myGlobal.connection_type == 'browser' ) {
-              title_str = (' : ' + window.name);
+              title_str = (' : [browser] : ' + window.name);
           } else {
               myGlobal.connection_type
               title_str = ' / <a href=https://' + myGlobal.connection_addr + '>https://' + myGlobal.connection_addr + '</a>';
