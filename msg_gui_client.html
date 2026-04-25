@@ -8,14 +8,14 @@
     <script>
       const myGlobal = {};
     </script>
-    <script src="../libs/message_pool.js"> </script>
-    <script src="../libs/init_client.js"> </script>
+    <script src="./libs/message_pool.js"> </script>
+    <script src="./libs/init_client.js"> </script>
     <script>
       document.addEventListener('DOMContentLoaded', (e) => {
           setupMessageBuffer(myGlobal, 20);
           let title_str;
           if ( myGlobal.connection_type == 'browser' ) {
-              title_str = (' : ' + window.name);
+              title_str = (' : [browser] : ' + window.name);
           } else {
               myGlobal.connection_type
               title_str = ' / <a href=https://' + myGlobal.connection_addr + '>https://' + myGlobal.connection_addr + '</a>';
@@ -55,6 +55,7 @@
                 return;
             }
         }
+        //console.log("publish : " + tp_name.value + " / " + msg);
         myGlobal.BM.msg_pool.publish(tp_name.value, msg);
     }
   </script>
