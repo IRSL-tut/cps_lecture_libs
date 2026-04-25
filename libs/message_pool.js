@@ -375,7 +375,7 @@ class BrowserMessage {
     });
     window.addEventListener("message", //// message from host
                             (ev) => {
-                              //console.log('msg:' + ev.data);
+                              console.log('ms:msg:' + ev.data);
                               pool._receiveData(ev.data);
                             }, false);
     this.connection = true;

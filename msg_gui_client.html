@@ -55,6 +55,7 @@
                 return;
             }
         }
+        console.log("publish : " + tp_name.value + " / " + msg);
         myGlobal.BM.msg_pool.publish(tp_name.value, msg);
     }
   </script>
