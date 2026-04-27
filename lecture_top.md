@@ -67,13 +67,24 @@ under construction
 
 プログラムはダウンロードして読み込んで下さい(通信する必要があるため)
 
+[サンプルブロック(購読プログラム)](samples/pubsub/sample_callback.xml)
+
+[サンプルブロック(購読-出版プログラム)](samples/pubsub/sample_callback_pubsub.xml)
+
+[マウスセンサーを使う](samples/pubsub/callback_get_mouse_message.xml)
+
+[キャンバスデバイスを使う](samples/pubsub/send_canvas_message.xml)
+
+[出版購読通信によるセンサデバイスフィードバック](samples/pubsub/callback_sensor_device_feedback.xml)
+
+
+### 出版購読型通信(ポーリング)
+
 [サンプルブロック(購読プログラム)](samples/pubsub/subscribe_echo.xml)
 
 [サンプルブロック(購読-出版プログラム)](samples/pubsub/subscribe_publish.xml)
 
 [マウスセンサーを使う](samples/pubsub/get_mouse_message.xml)
-
-[キャンバスデバイスを使う](samples/pubsub/send_canvas_message.xml)
 
 [出版購読通信によるセンサデバイスフィードバック](samples/pubsub/sensor_device_feedback.xml)
 
@@ -85,12 +96,12 @@ under construction
 
 under construction
 
+
 ### デバイス
 
-under construction
+[仮想ジョイスティックを使う](samples/devices/use_joy.xml)
+
 
 ### (ゲーム)環境
 
 under construction
-
-
