@@ -326,6 +326,33 @@ function initializeProgEnvironment(myGlobal) {
     return null;
   };
 
+  myGlobal.getInitialView = function getInitialView() {
+    const params = new URL(window.location.href).searchParams;
+    const keys = ['mode', 'view', 'display'];
+    const aliases = {
+      prog: 'program',
+      program: 'program',
+      plot: 'plot',
+      notes: 'notes',
+      note: 'notes',
+    };
+
+    for (const key of keys) {
+      const value = params.get(key);
+      if (!value) {
+        continue;
+      }
+
+      const normalizedValue = String(value).trim().toLowerCase();
+      const nextView = aliases[normalizedValue];
+      if (nextView && myGlobal.views[nextView]) {
+        return nextView;
+      }
+    }
+
+    return 'program';
+  };
+
   myGlobal.loadWorkspaceXmlText = function loadWorkspaceXmlText(xmlText, viewName = myGlobal.currentView, merge = false) {
     if (!myGlobal.viewHasWorkspace(viewName)) {
       throw new Error(`Unknown workspace view: ${viewName}`);
@@ -663,7 +690,7 @@ function initializeProgEnvironment(myGlobal) {
 
   myGlobal.updateRunButton();
   myGlobal.stepValue.textContent = String(myGlobal.stepNum);
-  myGlobal.setView('program');
+  myGlobal.setView(myGlobal.getInitialView());
 
   myGlobal.initialProgramUrl = myGlobal.getInitialProgramUrl();
   if (myGlobal.initialProgramUrl) {
