@@ -7,6 +7,12 @@
     chart: null,
     config: null,
     nextColorIndex: 0,
+    range: {
+      xMin: -10,
+      xMax: 10,
+      yMin: -10,
+      yMax: 10,
+    },
   };
 
   myGlobal.getPlotModeRightPane = function getPlotModeRightPane() {
@@ -22,7 +28,7 @@
       '  <div class="plot-mode__canvas-wrap">',
       '    <canvas id="plot-chart" aria-label="plot chart"></canvas>',
       '  </div>',
-      '  <p class="plot-mode__hint">Use progFuncs.point(x, y) to add a point and progFuncs.line(x1, y1, x2, y2) to draw a line segment.</p>',
+      '  <p class="plot-mode__hint">Use progFuncs.point(x, y), progFuncs.line(x1, y1, x2, y2), and progFuncs.set_plot_range(xMin, xMax, yMin, yMax).</p>',
       '</section>',
     ].join('');
   };
@@ -31,7 +37,18 @@
     return document.getElementById('plot-chart');
   };
 
+  myGlobal.getCurrentPlotRange = function getCurrentPlotRange() {
+    const range = myGlobal.plotState.range || {};
+    return {
+      xMin: Number.isFinite(Number(range.xMin)) ? Number(range.xMin) : -10,
+      xMax: Number.isFinite(Number(range.xMax)) ? Number(range.xMax) : 10,
+      yMin: Number.isFinite(Number(range.yMin)) ? Number(range.yMin) : -10,
+      yMax: Number.isFinite(Number(range.yMax)) ? Number(range.yMax) : 10,
+    };
+  };
+
   myGlobal.getDefaultPlotConfig = function getDefaultPlotConfig() {
+    const range = myGlobal.getCurrentPlotRange();
     return {
       type: 'scatter',
       data: {
@@ -49,6 +66,8 @@
         scales: {
           x: {
             type: 'linear',
+            min: range.xMin,
+            max: range.xMax,
             title: {
               display: true,
               text: 'x',
@@ -62,8 +81,9 @@
             },
           },
           y: {
-            beginAtZero: true,
             type: 'linear',
+            min: range.yMin,
+            max: range.yMax,
             title: {
               display: true,
               text: 'y',
@@ -83,6 +103,33 @@
 
   myGlobal.clonePlotConfig = function clonePlotConfig(config) {
     return JSON.parse(JSON.stringify(config));
+  };
+
+  myGlobal.applyPlotRangeToConfig = function applyPlotRangeToConfig(config) {
+    const nextConfig = myGlobal.clonePlotConfig(config);
+    const range = myGlobal.getCurrentPlotRange();
+
+    if (!nextConfig.options) {
+      nextConfig.options = {};
+    }
+    if (!nextConfig.options.scales) {
+      nextConfig.options.scales = {};
+    }
+    if (!nextConfig.options.scales.x) {
+      nextConfig.options.scales.x = {};
+    }
+    if (!nextConfig.options.scales.y) {
+      nextConfig.options.scales.y = {};
+    }
+
+    nextConfig.options.scales.x.type = 'linear';
+    nextConfig.options.scales.x.min = range.xMin;
+    nextConfig.options.scales.x.max = range.xMax;
+    nextConfig.options.scales.y.type = 'linear';
+    nextConfig.options.scales.y.min = range.yMin;
+    nextConfig.options.scales.y.max = range.yMax;
+
+    return nextConfig;
   };
 
   myGlobal.getPlotPalette = function getPlotPalette() {
@@ -166,7 +213,7 @@
   };
 
   myGlobal.setPlotConfig = function setPlotConfig(config) {
-    myGlobal.plotState.config = myGlobal.clonePlotConfig(config);
+    myGlobal.plotState.config = myGlobal.applyPlotRangeToConfig(config);
     if (myGlobal.currentView === 'plot') {
       myGlobal.renderPlotChart();
     }
@@ -285,6 +332,33 @@
     myGlobal.setPlotConfig(baseConfig);
   };
 
+  myGlobal.setPlotRange = function setPlotRange(xMin, xMax, yMin = xMin, yMax = xMax) {
+    const nextRange = {
+      xMin: Number(xMin),
+      xMax: Number(xMax),
+      yMin: Number(yMin),
+      yMax: Number(yMax),
+    };
+
+    if (!Number.isFinite(nextRange.xMin) || !Number.isFinite(nextRange.xMax)
+      || !Number.isFinite(nextRange.yMin) || !Number.isFinite(nextRange.yMax)) {
+      throw new Error('Plot range values must be numbers');
+    }
+    if (nextRange.xMin >= nextRange.xMax || nextRange.yMin >= nextRange.yMax) {
+      throw new Error('Plot range min must be smaller than max');
+    }
+
+    myGlobal.plotState.range = nextRange;
+    myGlobal.plotState.config = myGlobal.applyPlotRangeToConfig(myGlobal.ensurePlotConfig());
+
+    if (myGlobal.currentView === 'plot') {
+      myGlobal.renderPlotChart();
+    }
+    if (typeof myGlobal.setStatus === 'function') {
+      myGlobal.setStatus(`Plot range updated: x=[${nextRange.xMin}, ${nextRange.xMax}], y=[${nextRange.yMin}, ${nextRange.yMax}]`);
+    }
+  };
+
   myGlobal.clearPlot = function clearPlot() {
     myGlobal.plotState.config = myGlobal.getDefaultPlotConfig();
     myGlobal.plotState.nextColorIndex = 0;
@@ -321,6 +395,9 @@
     };
     progFuncs.line = (x1, y1, x2, y2, datasetLabel) => {
       myGlobal.line(x1, y1, x2, y2, datasetLabel);
+    };
+    progFuncs.set_plot_range = (xMin, xMax, yMin, yMax) => {
+      myGlobal.setPlotRange(xMin, xMax, yMin, yMax);
     };
     progFuncs.plot_clear = () => {
       myGlobal.clearPlot();
