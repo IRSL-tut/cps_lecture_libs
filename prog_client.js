@@ -175,7 +175,9 @@ function initializeProgEnvironment(myGlobal) {
     plot: {
       title: 'Plot Workspace',
       left: '<div id="blocklyDiv"></div>',
-      right: '<h3>Right: Output</h3><p>Try editing the code and run the sample.</p>',
+      right: typeof myGlobal.getPlotModeRightPane === 'function'
+        ? myGlobal.getPlotModeRightPane()
+        : '<section class="plot-mode"><div class="plot-mode__header"><div><h3>Chart Output</h3><p>Chart.js rendering area for plot mode.</p></div></div><div class="plot-mode__canvas-wrap"><canvas id="plot-chart"></canvas></div></section>',
     },
     notes: {
       title: 'Notes Workspace',
@@ -590,6 +592,7 @@ function initializeProgEnvironment(myGlobal) {
     }
     myGlobal.leftPane.classList.toggle('pane--workspace', myGlobal.viewHasWorkspace(myGlobal.currentView));
     myGlobal.rightPane.classList.toggle('pane--program', myGlobal.currentView === 'program');
+    myGlobal.rightPane.classList.toggle('pane--plot', myGlobal.currentView === 'plot');
     myGlobal.leftContent.innerHTML = view.left;
     myGlobal.rightContent.innerHTML = view.right;
 
@@ -599,6 +602,9 @@ function initializeProgEnvironment(myGlobal) {
     }
     if (myGlobal.currentView === 'program' && typeof myGlobal.setupProgramModePane === 'function') {
       myGlobal.setupProgramModePane();
+    }
+    if (myGlobal.currentView === 'plot' && typeof myGlobal.setupPlotModePane === 'function') {
+      myGlobal.setupPlotModePane();
     }
 
     myGlobal.navButtons.forEach((button) => {
