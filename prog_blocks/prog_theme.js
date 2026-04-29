@@ -1,4 +1,4 @@
-var prog_theme = Blockly.Theme.defineTheme('modern', {
+const prog_theme_json = {
   base: Blockly.Themes.Classic,
   blockStyles: {
     colour_blocks: {
@@ -101,4 +101,6 @@ var prog_theme = Blockly.Theme.defineTheme('modern', {
   componentStyles: {},
   fontStyle: {},
   startHats: null,
-});
+};
+
+const prog_theme = Blockly.Theme.defineTheme('modern', prog_theme_json);

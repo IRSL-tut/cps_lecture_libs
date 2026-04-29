@@ -103,8 +103,16 @@
     <script src="./prog_blocks/prog_toolbox.js"></script>
     <script src="./prog_blocks/prog_main.js"></script>
     <script src="./prog_blocks/prog_blocks.js"></script>
-    <!-- plot blockly settings -->
 
+    <!-- plot blockly settings -->
+    <!--script src="./prog_blocks/plot_theme.js"></script-->
+    <script src="./plot_blocks/plot_toolbox.js"></script>
+    <script src="./plot_blocks/plot_main.js"></script>
+    <script src="./plot_blocks/plot_blocks.js"></script>
+    <script>
+      const plot_theme_json = structuredClone(prog_theme_json);
+      const plot_theme = Blockly.Theme.defineTheme('modern', plot_theme_json);
+    </script>
     <!-- script loading -->
     <script src="mode_prog.js"></script>
     <script src="mode_plot.js"></script>

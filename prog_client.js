@@ -96,35 +96,7 @@ function initializeProgEnvironment(myGlobal) {
 
   myGlobal.workspaceThemes = {
     program: prog_theme,
-    plot: myGlobal.defineTheme('plot_theme', {
-      logicPrimary: '#707070',
-      logicSecondary: '#e2e2e2',
-      logicTertiary: '#515151',
-      loopPrimary: '#7b7b7b',
-      loopSecondary: '#ebebeb',
-      loopTertiary: '#5c5c5c',
-      mathPrimary: '#666666',
-      mathSecondary: '#dddddd',
-      mathTertiary: '#474747',
-      textPrimary: '#8a8a8a',
-      textSecondary: '#f1f1f1',
-      textTertiary: '#6a6a6a',
-      variablePrimary: '#757575',
-      variableSecondary: '#e7e7e7',
-      variableTertiary: '#565656',
-      procedurePrimary: '#616161',
-      procedureSecondary: '#d9d9d9',
-      procedureTertiary: '#444444',
-      workspaceBackgroundColour: '#efefef',
-      toolboxBackgroundColour: '#d6d6d6',
-      toolboxForegroundColour: '#242424',
-      flyoutBackgroundColour: '#fbfbfb',
-      flyoutForegroundColour: '#242424',
-      scrollbarColour: '#979797',
-      insertionMarkerColour: '#363636',
-      cursorColour: '#363636',
-      blackBackground: '#d3d3d3',
-    }),
+    plot: plot_theme,
     notes: myGlobal.defineTheme('notes_theme', {
       logicPrimary: '#4d4d4d',
       logicSecondary: '#cfcfcf',
@@ -157,7 +129,7 @@ function initializeProgEnvironment(myGlobal) {
   };
   myGlobal.workspaceToolbox = {
     program: prog_toolbox,
-    plot: document.getElementById('toolbox'),
+    plot: plot_toolbox,
     notes: document.getElementById('toolbox'),
   };
   myGlobal.viewHasWorkspace = function viewHasWorkspace(name) {
