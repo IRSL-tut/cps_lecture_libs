@@ -28,7 +28,7 @@
       '  <div class="plot-mode__canvas-wrap">',
       '    <canvas id="plot-chart" aria-label="plot chart"></canvas>',
       '  </div>',
-      '  <p class="plot-mode__hint">Use progFuncs.point(x, y), progFuncs.line(x1, y1, x2, y2), and progFuncs.set_plot_range(xMin, xMax, yMin, yMax).</p>',
+      '  <p class="plot-mode__hint">Use progFuncs.point(x, y), progFuncs.line(x1, y1, x2, y2), progFuncs.directed_line(x, y, theta, size, length, color), and progFuncs.set_plot_range(xMin, xMax, yMin, yMax).</p>',
       '</section>',
     ].join('');
   };
@@ -158,8 +158,16 @@
     };
   };
 
-  myGlobal.makeLineDataset = function makeLineDataset(label = 'Line') {
-    const color = myGlobal.getNextPlotColor();
+  myGlobal.resolvePlotColor = function resolvePlotColor(colorValue) {
+    if (typeof colorValue === 'string' && colorValue.trim()) {
+      return colorValue.trim();
+    }
+
+    return myGlobal.getNextPlotColor();
+  };
+
+  myGlobal.makeLineDataset = function makeLineDataset(label = 'Line', colorValue = null) {
+    const color = myGlobal.resolvePlotColor(colorValue);
     return {
       type: 'line',
       label,
@@ -173,6 +181,24 @@
       fill: false,
       tension: 0,
     };
+  };
+
+  myGlobal.toPlotNumber = function toPlotNumber(value, name) {
+    const numericValue = Number(value);
+    if (!Number.isFinite(numericValue)) {
+      throw new Error(`${name} must be a finite number`);
+    }
+
+    return numericValue;
+  };
+
+  myGlobal.toPlotAngleRadians = function toPlotAngleRadians(theta) {
+    const numericTheta = myGlobal.toPlotNumber(theta, 'theta');
+    if (Math.abs(numericTheta) > (Math.PI * 2) + 1e-9) {
+      return numericTheta * Math.PI / 180;
+    }
+
+    return numericTheta;
   };
 
   myGlobal.ensurePlotConfig = function ensurePlotConfig() {
@@ -332,6 +358,43 @@
     myGlobal.setPlotConfig(baseConfig);
   };
 
+  myGlobal.directedLine = function directedLine(x, y, theta, size, length, color) {
+    const centerX = myGlobal.toPlotNumber(x, 'x');
+    const centerY = myGlobal.toPlotNumber(y, 'y');
+    const angle = myGlobal.toPlotAngleRadians(theta);
+    const lineLength = Math.abs(myGlobal.toPlotNumber(length, 'length'));
+    const arrowSize = size === undefined || size === null || size === ''
+      ? 0
+      : Math.abs(myGlobal.toPlotNumber(size, 'size'));
+
+    const halfLength = lineLength / 2;
+    const deltaX = Math.cos(angle) * halfLength;
+    const deltaY = Math.sin(angle) * halfLength;
+    const startPoint = { x: centerX - deltaX, y: centerY - deltaY };
+    const endPoint = { x: centerX + deltaX, y: centerY + deltaY };
+
+    const baseConfig = myGlobal.clonePlotConfig(myGlobal.ensurePlotConfig());
+    const nextDataset = myGlobal.makeLineDataset(`Directed Line ${baseConfig.data.datasets.length + 1}`, color);
+    nextDataset.data = [startPoint, endPoint];
+
+    if (arrowSize > 0) {
+      const arrowSpread = Math.PI / 6;
+      const leftWing = {
+        x: endPoint.x + Math.cos(angle + Math.PI - arrowSpread) * arrowSize,
+        y: endPoint.y + Math.sin(angle + Math.PI - arrowSpread) * arrowSize,
+      };
+      const rightWing = {
+        x: endPoint.x + Math.cos(angle + Math.PI + arrowSpread) * arrowSize,
+        y: endPoint.y + Math.sin(angle + Math.PI + arrowSpread) * arrowSize,
+      };
+
+      nextDataset.data.push(null, endPoint, leftWing, null, endPoint, rightWing);
+    }
+
+    baseConfig.data.datasets.push(nextDataset);
+    myGlobal.setPlotConfig(baseConfig);
+  };
+
   myGlobal.setPlotRange = function setPlotRange(xMin, xMax, yMin = xMin, yMax = xMax) {
     const nextRange = {
       xMin: Number(xMin),
@@ -395,6 +458,12 @@
     };
     progFuncs.line = (x1, y1, x2, y2, datasetLabel) => {
       myGlobal.line(x1, y1, x2, y2, datasetLabel);
+    };
+    progFuncs.directed_line = (x, y, theta, size, length, color) => {
+      myGlobal.directedLine(x, y, theta, size, length, color);
+    };
+    progFuncs.plot_directed_line = (x, y, theta, size, length, color) => {
+      myGlobal.directedLine(x, y, theta, size, length, color);
     };
     progFuncs.set_plot_range = (xMin, xMax, yMin, yMax) => {
       myGlobal.setPlotRange(xMin, xMax, yMin, yMax);
