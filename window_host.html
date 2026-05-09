@@ -85,7 +85,35 @@
 
   <div id="right-side">
     <div id="button-container">
-      <button class="button" onclick="startClient()"     >Start Client</button> <div><!-- dummy element --></div>
+            <button class="button" onclick="startClient(getSelectedClientProgram(), getSelectedClientMode())"     >Start Client</button>
+            <div>
+                <input id="client-program" class="input-area" list="client-program-list" placeholder="Load program (optional)" />
+                <datalist id="client-program-list">
+                    <option value="./samples/prog/function.xml"></option>
+                    <option value="./samples/prog/janken.xml"></option>
+                    <option value="./samples/prog/loop.xml"></option>
+                    <option value="./samples/prog/sample_if.xml"></option>
+                    <option value="./samples/prog/stone_game.xml"></option>
+                    <option value="./samples/prog/variable.xml"></option>
+                    <option value="./samples/pubsub/action_client.xml"></option>
+                    <option value="./samples/pubsub/action_server.xml"></option>
+                    <option value="./samples/pubsub/callback_get_mouse_message.xml"></option>
+                    <option value="./samples/pubsub/callback_sensor_device_feedback.xml"></option>
+                    <option value="./samples/pubsub/get_mouse_message.xml"></option>
+                    <option value="./samples/pubsub/sample_callback_pubsub.xml"></option>
+                    <option value="./samples/pubsub/sample_callback.xml"></option>
+                    <option value="./samples/pubsub/send_canvas_message.xml"></option>
+                    <option value="./samples/pubsub/sensor_device_feedback.xml"></option>
+                    <option value="./samples/pubsub/subscribe_echo.xml"></option>
+                    <option value="./samples/pubsub/subscribe_publish.xml"></option>
+                    <option value="./samples/devices/use_joy.xml"></option>
+                </datalist>
+                <select id="client-mode" class="input-area" aria-label="Select client mode">
+                    <option value="program" selected>Mode: program</option>
+                    <option value="plot">Mode: plot</option>
+                    <option value="notes">Mode: notes</option>
+                </select>
+            </div>
       <button class="button" onclick="checkClientList()" >Check Clients</button> <div><!-- dummy element --></div>
       <div><br><!-- dummy element --></div><div><!-- dummy element --></div>
       <button class="button" onclick="startMsgGui()" >Start Message GUI</button> <div><!-- dummy element --></div>
@@ -198,11 +226,34 @@
             checkClientList();
         }
     }
-    function startClient() {
+    function getSelectedClientProgram() {
+        const input = document.getElementById("client-program");
+        if (!input) {
+            return "";
+        }
+
+        return String(input.value || "").trim();
+    }
+    function getSelectedClientMode() {
+        const input = document.getElementById("client-mode");
+        if (!input) {
+            return "program";
+        }
+
+        return String(input.value || "program").trim();
+    }
+    function startClient(programUrl = "", modeName = "program") {
         checkClientList();
         var len = myGlobal.clientCount;
         var tabname = 'Client:' + len;
-        var new_w = window.open("./prog_client.html", tabname);
+        const clientUrl = new URL("./prog_client.html", window.location.href);
+        if (programUrl) {
+            clientUrl.searchParams.set("prog", programUrl);
+        }
+        if (modeName) {
+            clientUrl.searchParams.set("mode", modeName);
+        }
+        var new_w = window.open(clientUrl.toString(), tabname);
         myGlobal.clients.set(tabname, new_w);
         myGlobal.clientCount += 1;
         updateClientList();
