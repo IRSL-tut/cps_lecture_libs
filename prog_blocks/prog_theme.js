@@ -1,7 +1,7 @@
 const prog_theme_json = {
   base: Blockly.Themes.Classic,
   blockStyles: {
-    colour_blocks: {
+    color_blocks: {
       colourPrimary:   '#a5745b', // 20 44.8 64.7
       colourSecondary: '#dbc7bd',
       colourTertiary:  '#845d49',
@@ -64,7 +64,7 @@ const prog_theme_json = {
     },
   },
   categoryStyles: {
-    colour_category: {
+    color_category: {
       colour: '#a5745b',
     },
     list_category: {

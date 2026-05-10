@@ -1,3 +1,104 @@
+if (!Blockly.Blocks['color_picker']) {
+    Blockly.Blocks['color_picker'] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField('color')
+                .appendField(new Blockly.FieldTextInput('#ff0000'), 'COLOR');
+            this.setOutput(true, 'Color');
+            this.setStyle('color_blocks');
+            this.setTooltip('Pick a color.');
+            this.setHelpUrl('');
+        }
+    };
+
+    Blockly.Blocks['color_random'] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField('random color');
+            this.setOutput(true, 'Color');
+            this.setStyle('color_blocks');
+            this.setTooltip('Generate a random color.');
+            this.setHelpUrl('');
+        }
+    };
+
+    Blockly.Blocks['color_rgb'] = {
+        init: function() {
+            this.appendValueInput('RED')
+                .setCheck('Number')
+                .appendField('color r');
+            this.appendValueInput('GREEN')
+                .setCheck('Number')
+                .appendField('g');
+            this.appendValueInput('BLUE')
+                .setCheck('Number')
+                .appendField('b');
+            this.setInputsInline(true);
+            this.setOutput(true, 'Color');
+            this.setStyle('color_blocks');
+            this.setTooltip('Build a color from RGB values 0-100.');
+            this.setHelpUrl('');
+        }
+    };
+
+    Blockly.Blocks['color_blend'] = {
+        init: function() {
+            this.appendValueInput('COLOR1')
+                .appendField('blend');
+            this.appendValueInput('COLOR2')
+                .appendField('with');
+            this.appendValueInput('RATIO')
+                .setCheck('Number')
+                .appendField('ratio');
+            this.setInputsInline(true);
+            this.setOutput(true, 'Color');
+            this.setStyle('color_blocks');
+            this.setTooltip('Blend two colors with ratio 0-1.');
+            this.setHelpUrl('');
+        }
+    };
+
+    javascript.javascriptGenerator.forBlock['color_picker'] = function(block) {
+        var color = block.getFieldValue('COLOR') || '#000000';
+        return [JSON.stringify(color), javascript.Order.ATOMIC];
+    };
+
+    javascript.javascriptGenerator.forBlock['color_random'] = function() {
+        var code = '(function(){var n=Math.floor(Math.random()*16777215).toString(16);return "#" + ("000000" + n).slice(-6);})()';
+        return [code, javascript.Order.FUNCTION_CALL];
+    };
+
+    javascript.javascriptGenerator.forBlock['color_rgb'] = function(block, generator) {
+        var red = generator.valueToCode(block, 'RED', javascript.Order.NONE) || '0';
+        var green = generator.valueToCode(block, 'GREEN', javascript.Order.NONE) || '0';
+        var blue = generator.valueToCode(block, 'BLUE', javascript.Order.NONE) || '0';
+        var code = '(function(r,g,b){'
+            + 'function clamp(v){return Math.max(0, Math.min(100, Number(v)));}'
+            + 'function toHex(v){var n=Math.round(clamp(v)*255/100).toString(16);return ("0" + n).slice(-2);}'
+            + 'return "#" + toHex(r) + toHex(g) + toHex(b);'
+            + '})(' + red + ', ' + green + ', ' + blue + ')';
+        return [code, javascript.Order.FUNCTION_CALL];
+    };
+
+    javascript.javascriptGenerator.forBlock['color_blend'] = function(block, generator) {
+        var color1 = generator.valueToCode(block, 'COLOR1', javascript.Order.NONE) || '"#000000"';
+        var color2 = generator.valueToCode(block, 'COLOR2', javascript.Order.NONE) || '"#ffffff"';
+        var ratio = generator.valueToCode(block, 'RATIO', javascript.Order.NONE) || '0.5';
+        var code = '(function(c1,c2,r){'
+            + 'function clampRatio(v){return Math.max(0, Math.min(1, Number(v)));}'
+            + 'function normHex(c){c=String(c||"").trim();if(/^#[0-9a-fA-F]{6}$/.test(c)){return c.toLowerCase();}return "#000000";}'
+            + 'function channel(c,i){return parseInt(c.slice(i,i+2),16);}'
+            + 'function hex(v){var s=Math.round(v).toString(16);return ("0" + s).slice(-2);}'
+            + 'var a=normHex(c1);var b=normHex(c2);var t=clampRatio(r);'
+            + 'var rr=channel(a,1)*(1-t)+channel(b,1)*t;'
+            + 'var gg=channel(a,3)*(1-t)+channel(b,3)*t;'
+            + 'var bb=channel(a,5)*(1-t)+channel(b,5)*t;'
+            + 'return "#" + hex(rr) + hex(gg) + hex(bb);'
+            + '})(' + color1 + ', ' + color2 + ', ' + ratio + ')';
+        return [code, javascript.Order.FUNCTION_CALL];
+    };
+}
+
 //Blockly.Blocks['getkey'] = {
 //    init: function() {
 //        this.appendDummyInput()

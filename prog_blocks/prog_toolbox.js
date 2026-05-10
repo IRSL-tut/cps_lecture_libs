@@ -761,23 +761,23 @@ const prog_toolbox = {
     },
     {
       kind: 'category',
-      name: 'Colour',
-      categorystyle: 'colour_category',
+      name: 'Color',
+      categorystyle: 'color_category',
       contents: [
         {
-          type: 'colour_picker',
+          type: 'color_picker',
           kind: 'block',
         },
         {
-          type: 'colour_random',
+          type: 'color_random',
           kind: 'block',
         },
         {
-          type: 'colour_rgb',
+          type: 'color_rgb',
           kind: 'block',
         },
         {
-          type: 'colour_blend',
+          type: 'color_blend',
           kind: 'block',
         },
       ],
