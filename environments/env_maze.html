@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Babylon.js - Maze Environment</title>
+    <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+    <script src="https://cdn.babylonjs.com/babylon.js?v=20260403"></script>
+    <style>
+        html, body { width: 100%; height: 100%; }
+        body { margin: 0; overflow: hidden; background: #000; display: flex; flex-direction: column; }
+        #renderCanvas { width: 100%; flex: 1 1 auto; min-height: 0; outline: none; display: block; }
+        #ui { color: #fff; background: rgba(0,0,0,0.8); padding: 10px; font-family: monospace; pointer-events: none; border-bottom: 1px solid #777; flex: 0 0 auto; }
+    </style>
+    <script>
+        const myGlobal = {};
+    </script>
+    <script src="../libs/message_pool.js"> </script>
+    <script src="../libs/init_client.js"> </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', (e) => {
+          setupMessageBuffer(myGlobal, 20);
+          let title_str;
+          if ( myGlobal.connection_type == 'browser' ) {
+              title_str = (' : ' + window.name);
+          } else {
+              title_str = ' / <a href=https://' + myGlobal.connection_addr + '>https://' + myGlobal.connection_addr + '</a>';
+          }
+          let node_text = document.getElementById("node-title-text");
+          if (node_text) {
+              node_text.innerHTML = title_str;
+          }
+      });
+    </script>
+</head>
+<body>
+    <div id="ui">
+        <div id="node-title-text">Maze Environment</div>
+        <div id="dist">Distances: ---</div>
+    </div>
+    <canvas id="renderCanvas"></canvas>
+    <script src="./env_common.js"></script>
+    <script src="./env_maze.js"></script>
+</body>
+</html>
