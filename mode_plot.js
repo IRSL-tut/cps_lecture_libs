@@ -13,6 +13,10 @@
       yMin: -10,
       yMax: 10,
     },
+    ticks: {
+      xStep: 1,
+      yStep: 1,
+    },
   };
 
   myGlobal.getPlotModeRightPane = function getPlotModeRightPane() {
@@ -47,8 +51,17 @@
     };
   };
 
+  myGlobal.getCurrentPlotTicks = function getCurrentPlotTicks() {
+    const ticks = myGlobal.plotState.ticks || {};
+    return {
+      xStep: Number.isFinite(Number(ticks.xStep)) && Number(ticks.xStep) > 0 ? Number(ticks.xStep) : 1,
+      yStep: Number.isFinite(Number(ticks.yStep)) && Number(ticks.yStep) > 0 ? Number(ticks.yStep) : 1,
+    };
+  };
+
   myGlobal.getDefaultPlotConfig = function getDefaultPlotConfig() {
     const range = myGlobal.getCurrentPlotRange();
+    const ticks = myGlobal.getCurrentPlotTicks();
     return {
       type: 'scatter',
       data: {
@@ -78,6 +91,7 @@
             },
             ticks: {
               color: '#434343',
+              stepSize: ticks.xStep,
             },
           },
           y: {
@@ -94,6 +108,7 @@
             },
             ticks: {
               color: '#434343',
+              stepSize: ticks.yStep,
             },
           },
         },
@@ -108,6 +123,7 @@
   myGlobal.applyPlotRangeToConfig = function applyPlotRangeToConfig(config) {
     const nextConfig = myGlobal.clonePlotConfig(config);
     const range = myGlobal.getCurrentPlotRange();
+    const ticks = myGlobal.getCurrentPlotTicks();
 
     if (!nextConfig.options) {
       nextConfig.options = {};
@@ -125,9 +141,17 @@
     nextConfig.options.scales.x.type = 'linear';
     nextConfig.options.scales.x.min = range.xMin;
     nextConfig.options.scales.x.max = range.xMax;
+    if (!nextConfig.options.scales.x.ticks) {
+      nextConfig.options.scales.x.ticks = {};
+    }
+    nextConfig.options.scales.x.ticks.stepSize = ticks.xStep;
     nextConfig.options.scales.y.type = 'linear';
     nextConfig.options.scales.y.min = range.yMin;
     nextConfig.options.scales.y.max = range.yMax;
+    if (!nextConfig.options.scales.y.ticks) {
+      nextConfig.options.scales.y.ticks = {};
+    }
+    nextConfig.options.scales.y.ticks.stepSize = ticks.yStep;
 
     return nextConfig;
   };
@@ -395,6 +419,25 @@
     myGlobal.setPlotConfig(baseConfig);
   };
 
+  myGlobal.arrow = function arrow(x1, y1, x2, y2, size, color) {
+    const startX = myGlobal.toPlotNumber(x1, 'x1');
+    const startY = myGlobal.toPlotNumber(y1, 'y1');
+    const endX = myGlobal.toPlotNumber(x2, 'x2');
+    const endY = myGlobal.toPlotNumber(y2, 'y2');
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+    const length = Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));
+
+    if (length === 0) {
+      throw new Error('Arrow requires different start and end points');
+    }
+
+    const angle = Math.atan2(deltaY, deltaX);
+    const centerX = (startX + endX) / 2;
+    const centerY = (startY + endY) / 2;
+    myGlobal.directedLine(centerX, centerY, angle, size, length, color);
+  };
+
   myGlobal.setPlotRange = function setPlotRange(xMin, xMax, yMin = xMin, yMax = xMax) {
     const nextRange = {
       xMin: Number(xMin),
@@ -419,6 +462,30 @@
     }
     if (typeof myGlobal.setStatus === 'function') {
       myGlobal.setStatus(`Plot range updated: x=[${nextRange.xMin}, ${nextRange.xMax}], y=[${nextRange.yMin}, ${nextRange.yMax}]`);
+    }
+  };
+
+  myGlobal.setPlotTicks = function setPlotTicks(xStep, yStep) {
+    const nextTicks = {
+      xStep: Number(xStep),
+      yStep: Number(yStep),
+    };
+
+    if (!Number.isFinite(nextTicks.xStep) || !Number.isFinite(nextTicks.yStep)) {
+      throw new Error('Plot tick values must be numbers');
+    }
+    if (nextTicks.xStep <= 0 || nextTicks.yStep <= 0) {
+      throw new Error('Plot tick values must be greater than zero');
+    }
+
+    myGlobal.plotState.ticks = nextTicks;
+    myGlobal.plotState.config = myGlobal.applyPlotRangeToConfig(myGlobal.ensurePlotConfig());
+
+    if (myGlobal.currentView === 'plot') {
+      myGlobal.renderPlotChart();
+    }
+    if (typeof myGlobal.setStatus === 'function') {
+      myGlobal.setStatus(`Plot ticks updated: x=${nextTicks.xStep}, y=${nextTicks.yStep}`);
     }
   };
 
@@ -462,11 +529,17 @@
     progFuncs.directed_line = (x, y, theta, size, length, color) => {
       myGlobal.directedLine(x, y, theta, size, length, color);
     };
+    progFuncs.arrow = (x1, y1, x2, y2, size, color) => {
+      myGlobal.arrow(x1, y1, x2, y2, size, color);
+    };
     progFuncs.plot_directed_line = (x, y, theta, size, length, color) => {
       myGlobal.directedLine(x, y, theta, size, length, color);
     };
     progFuncs.set_plot_range = (xMin, xMax, yMin, yMax) => {
       myGlobal.setPlotRange(xMin, xMax, yMin, yMax);
+    };
+    progFuncs.set_plot_ticks = (xStep, yStep) => {
+      myGlobal.setPlotTicks(xStep, yStep);
     };
     progFuncs.plot_clear = () => {
       myGlobal.clearPlot();

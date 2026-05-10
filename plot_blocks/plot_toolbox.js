@@ -761,23 +761,23 @@ const plot_toolbox = {
     },
     {
       kind: 'category',
-      name: 'Colour',
-      categorystyle: 'colour_category',
+      name: 'Color',
+      categorystyle: 'color_category',
       contents: [
         {
-          type: 'colour_picker',
+          type: 'color_picker',
           kind: 'block',
         },
         {
-          type: 'colour_random',
+          type: 'color_random',
           kind: 'block',
         },
         {
-          type: 'colour_rgb',
+          type: 'color_rgb',
           kind: 'block',
         },
         {
-          type: 'colour_blend',
+          type: 'color_blend',
           kind: 'block',
         },
       ],
@@ -799,6 +799,177 @@ const plot_toolbox = {
     },
     {
       kind: 'sep',
+    },
+    {
+      kind: 'category',
+      name: 'Plot',
+      categorystyle: 'robot_category',
+      contents: [
+        {
+          type: 'plot_set_axes',
+          kind: 'block',
+          inputs: {
+            x_min: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: -10,
+                },
+              },
+            },
+            x_max: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 10,
+                },
+              },
+            },
+            y_min: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: -10,
+                },
+              },
+            },
+            y_max: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 10,
+                },
+              },
+            },
+            x_step: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 1,
+                },
+              },
+            },
+            y_step: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 1,
+                },
+              },
+            },
+          },
+        },
+        {
+          type: 'plot_point',
+          kind: 'block',
+          inputs: {
+            x: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 0,
+                },
+              },
+            },
+            y: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 0,
+                },
+              },
+            },
+          },
+        },
+        {
+          type: 'plot_line_segment',
+          kind: 'block',
+          inputs: {
+            x1: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 0,
+                },
+              },
+            },
+            y1: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 0,
+                },
+              },
+            },
+            x2: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 5,
+                },
+              },
+            },
+            y2: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 5,
+                },
+              },
+            },
+          },
+        },
+        {
+          type: 'plot_arrow_segment',
+          kind: 'block',
+          inputs: {
+            x1: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 0,
+                },
+              },
+            },
+            y1: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 0,
+                },
+              },
+            },
+            x2: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 3,
+                },
+              },
+            },
+            y2: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 2,
+                },
+              },
+            },
+            arrow_size: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 0.5,
+                },
+              },
+            },
+          },
+        },
+        {
+          type: 'plot_clear',
+          kind: 'block',
+        },
+      ],
     },
     {
       kind: 'category',
