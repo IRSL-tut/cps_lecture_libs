@@ -289,86 +289,6 @@
     }
   };
 
-  myGlobal.plotChart = function plotChart(type, labels, values, datasetLabel = 'Series 1') {
-    const nextLabels = Array.isArray(labels) ? labels : [];
-    const nextValues = Array.isArray(values) ? values : [];
-    const nextPoints = nextValues.map((value, index) => ({
-      x: Number(nextLabels[index] ?? index),
-      y: Number(value),
-    }));
-    const defaultConfig = myGlobal.getDefaultPlotConfig();
-    const dataset = type === 'bar'
-      ? {
-          ...myGlobal.makeLineDataset(datasetLabel || 'Series 1'),
-          type: 'bar',
-          pointRadius: 0,
-        }
-      : {
-          ...myGlobal.makeLineDataset(datasetLabel || 'Series 1'),
-          pointRadius: 3,
-          pointHoverRadius: 4,
-        };
-
-    myGlobal.setPlotConfig({
-      ...defaultConfig,
-      type,
-      data: {
-        datasets: [
-          {
-            ...dataset,
-            data: nextPoints,
-          },
-        ],
-      },
-    });
-  };
-
-  myGlobal.plotLine = function plotLine(labels, values, datasetLabel = 'Series 1') {
-    myGlobal.plotChart('line', labels, values, datasetLabel);
-  };
-
-  myGlobal.plotBar = function plotBar(labels, values, datasetLabel = 'Series 1') {
-    myGlobal.plotChart('bar', labels, values, datasetLabel);
-  };
-
-  myGlobal.plotPoints = function plotPoints(points, datasetLabel = 'Series 1') {
-    const nextPoints = Array.isArray(points) ? points : [];
-    const defaultConfig = myGlobal.getDefaultPlotConfig();
-
-    myGlobal.setPlotConfig({
-      ...defaultConfig,
-      type: 'scatter',
-      data: {
-        datasets: [
-          {
-            ...myGlobal.makePointDataset(datasetLabel || 'Series 1'),
-            label: datasetLabel || 'Series 1',
-            data: nextPoints.map((point) => ({
-              x: Number(point.x),
-              y: Number(point.y),
-            })),
-            showLine: false,
-          },
-        ],
-      },
-    });
-  };
-
-  myGlobal.appendPlotPoint = function appendPlotPoint(label, value, datasetIndex = 0) {
-    const baseConfig = myGlobal.clonePlotConfig(myGlobal.ensurePlotConfig());
-    if (!baseConfig.data.datasets[datasetIndex]) {
-      baseConfig.data.datasets[datasetIndex] = myGlobal.makePointDataset(`Points ${datasetIndex + 1}`);
-    }
-    if (!Array.isArray(baseConfig.data.datasets[datasetIndex].data)) {
-      baseConfig.data.datasets[datasetIndex].data = [];
-    }
-    baseConfig.data.datasets[datasetIndex].data.push({
-      x: Number(label),
-      y: Number(value),
-    });
-    myGlobal.setPlotConfig(baseConfig);
-  };
-
   myGlobal.point = function point(x, y, datasetIndex = 0) {
     const baseConfig = myGlobal.clonePlotConfig(myGlobal.ensurePlotConfig());
     const targetDatasetIndex = myGlobal.toDatasetIndex(datasetIndex, 0);
@@ -480,25 +400,6 @@
     myGlobal.setPlotConfig(baseConfig);
   };
 
-  myGlobal.arrow = function arrow(x1, y1, x2, y2, size, color) {
-    const startX = myGlobal.toPlotNumber(x1, 'x1');
-    const startY = myGlobal.toPlotNumber(y1, 'y1');
-    const endX = myGlobal.toPlotNumber(x2, 'x2');
-    const endY = myGlobal.toPlotNumber(y2, 'y2');
-    const deltaX = endX - startX;
-    const deltaY = endY - startY;
-    const length = Math.sqrt((deltaX * deltaX) + (deltaY * deltaY));
-
-    if (length === 0) {
-      throw new Error('Arrow requires different start and end points');
-    }
-
-    const angle = Math.atan2(deltaY, deltaX);
-    const centerX = (startX + endX) / 2;
-    const centerY = (startY + endY) / 2;
-    myGlobal.directedLine(centerX, centerY, angle, size, length, color);
-  };
-
   myGlobal.setPlotRange = function setPlotRange(xMin, xMax, yMin = xMin, yMax = xMax) {
     const nextRange = {
       xMin: Number(xMin),
@@ -566,21 +467,6 @@
       return;
     }
 
-    progFuncs.plot_chart = (type, labels, values, datasetLabel) => {
-      myGlobal.plotChart(type, labels, values, datasetLabel);
-    };
-    progFuncs.plot_line = (labels, values, datasetLabel) => {
-      myGlobal.plotLine(labels, values, datasetLabel);
-    };
-    progFuncs.plot_bar = (labels, values, datasetLabel) => {
-      myGlobal.plotBar(labels, values, datasetLabel);
-    };
-    progFuncs.plot_points = (points, datasetLabel) => {
-      myGlobal.plotPoints(points, datasetLabel);
-    };
-    progFuncs.append_plot_point = (label, value, datasetIndex) => {
-      myGlobal.appendPlotPoint(label, value, datasetIndex);
-    };
     progFuncs.point = (x, y, datasetIndex) => {
       myGlobal.point(x, y, datasetIndex);
     };
@@ -588,12 +474,6 @@
       myGlobal.line(x1, y1, x2, y2, datasetIndexOrLabel);
     };
     progFuncs.directed_line = (x, y, theta, size, length, color, datasetIndex) => {
-      myGlobal.directedLine(x, y, theta, size, length, color, datasetIndex);
-    };
-    progFuncs.arrow = (x1, y1, x2, y2, size, color) => {
-      myGlobal.arrow(x1, y1, x2, y2, size, color);
-    };
-    progFuncs.plot_directed_line = (x, y, theta, size, length, color, datasetIndex) => {
       myGlobal.directedLine(x, y, theta, size, length, color, datasetIndex);
     };
     progFuncs.set_plot_range = (xMin, xMax, yMin, yMax) => {
