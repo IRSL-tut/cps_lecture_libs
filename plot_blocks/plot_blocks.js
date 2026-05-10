@@ -2,24 +2,26 @@
 
 Blockly.Blocks['plot_set_axes'] = {
   init: function() {
+    this.appendDummyInput()
+      .appendField("plot config");
     this.appendValueInput('x_min')
       .setCheck('Number')
-      .appendField('plot config x_range');
+      .appendField('x_range: from');
     this.appendValueInput('x_max')
       .setCheck('Number')
-      .appendField('from');
+      .appendField('x_range: __to');
     this.appendValueInput('y_min')
       .setCheck('Number')
-      .appendField('y range');
+      .appendField('y range: from');
     this.appendValueInput('y_max')
       .setCheck('Number')
-      .appendField('from');
+      .appendField('y range: __to');
     this.appendValueInput('x_step')
       .setCheck('Number')
-      .appendField('x ticks');
+      .appendField('x ticks:');
     this.appendValueInput('y_step')
       .setCheck('Number')
-      .appendField('y ticks');
+      .appendField('y ticks:');
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setStyle('plot_blocks');
@@ -30,12 +32,14 @@ Blockly.Blocks['plot_set_axes'] = {
 
 Blockly.Blocks['plot_point'] = {
   init: function() {
+    this.appendDummyInput()
+      .appendField("plot");
     this.appendValueInput('x')
       .setCheck('Number')
-      .appendField('plot x');
+      .appendField('    x');
     this.appendValueInput('y')
       .setCheck('Number')
-      .appendField('y');
+      .appendField('    y');
     this.appendValueInput('datasetindex')
       .setCheck('Number')
       .appendField('dataset');
@@ -49,18 +53,20 @@ Blockly.Blocks['plot_point'] = {
 
 Blockly.Blocks['plot_line_segment'] = {
   init: function() {
+    this.appendDummyInput()
+      .appendField("line");
     this.appendValueInput('x1')
       .setCheck('Number')
-      .appendField('line x1');
+      .appendField('    x1');
     this.appendValueInput('y1')
       .setCheck('Number')
-      .appendField('y1');
+      .appendField('    y1');
     this.appendValueInput('x2')
       .setCheck('Number')
-      .appendField('x2');
+      .appendField('    x2');
     this.appendValueInput('y2')
       .setCheck('Number')
-      .appendField('y2');
+      .appendField('    y2');
     this.appendValueInput('datasetindex')
       .setCheck('Number')
       .appendField('dataset');
@@ -74,12 +80,14 @@ Blockly.Blocks['plot_line_segment'] = {
 
 Blockly.Blocks['plot_arrow_segment'] = {
   init: function() {
+    this.appendDummyInput()
+      .appendField("arrow");
     this.appendValueInput('x')
       .setCheck('Number')
-      .appendField('arrow x');
+      .appendField('    x');
     this.appendValueInput('y')
       .setCheck('Number')
-      .appendField('y');
+      .appendField('    y');
     this.appendValueInput('theta')
       .setCheck('Number')
       .appendField('theta');
