@@ -803,7 +803,7 @@ const plot_toolbox = {
     {
       kind: 'category',
       name: 'Plot',
-      categorystyle: 'robot_category',
+      categorystyle: 'plot_category',
       contents: [
         {
           type: 'plot_set_axes',

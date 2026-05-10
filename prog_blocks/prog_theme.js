@@ -57,6 +57,11 @@ const prog_theme_json = {
       colourSecondary: '#dbd6bd',
       colourTertiary:  '#847b49',
     },
+    plot_blocks: {
+      colourPrimary:   '#5b9ba6',
+      colourSecondary: '#bee1e8',
+      colourTertiary:  '#488285',
+    },
     message_blocks: {
       colourPrimary:   '#a55b67',
       colourSecondary: '#dbbdc2',
@@ -93,6 +98,9 @@ const prog_theme_json = {
     },
     robot_category: {
       colour: '#a5995b',
+    },
+    plot_category: {
+      colour: '#5b9ba6',
     },
     message_category: {
       colour: '#a55b67',

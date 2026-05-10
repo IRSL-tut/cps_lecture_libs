@@ -22,7 +22,7 @@ Blockly.Blocks['plot_set_axes'] = {
       .appendField('y ticks');
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setStyle('robot_blocks');
+    this.setStyle('plot_blocks');
     this.setTooltip('x/y軸の表示範囲と目盛りを設定します。');
     this.setHelpUrl('');
   }
@@ -41,7 +41,7 @@ Blockly.Blocks['plot_point'] = {
       .appendField('dataset');
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setStyle('robot_blocks');
+    this.setStyle('plot_blocks');
     this.setTooltip('点を1つ描画します。');
     this.setHelpUrl('');
   }
@@ -66,7 +66,7 @@ Blockly.Blocks['plot_line_segment'] = {
       .appendField('dataset');
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setStyle('robot_blocks');
+    this.setStyle('plot_blocks');
     this.setTooltip('2点を結ぶ直線を描画します。');
     this.setHelpUrl('');
   }
@@ -97,7 +97,7 @@ Blockly.Blocks['plot_arrow_segment'] = {
       .appendField('dataset');
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setStyle('robot_blocks');
+    this.setStyle('plot_blocks');
     this.setTooltip('始点から終点へ向かう矢印を描画します。');
     this.setHelpUrl('');
   }
@@ -109,7 +109,7 @@ Blockly.Blocks['plot_clear'] = {
       .appendField('clear plots');
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setStyle('robot_blocks');
+    this.setStyle('plot_blocks');
     this.setTooltip('現在の描画をクリアします。');
     this.setHelpUrl('');
   }
