@@ -239,6 +239,12 @@ Blockly.Blocks['MessageLoop'] = {
         this.setHelpUrl("");
     }
 };
+
+const customLoopTypes = Blockly.libraryBlocks?.loopTypes || Blockly.libraryBlocks?.loops?.loopTypes;
+if (customLoopTypes && typeof customLoopTypes.add === 'function') {
+    customLoopTypes.add('MessageLoop');
+}
+
 Blockly.Blocks['is_list'] = {
     init: function() {
         this.appendValueInput("in_val")
