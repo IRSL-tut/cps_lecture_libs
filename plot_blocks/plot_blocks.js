@@ -36,6 +36,9 @@ Blockly.Blocks['plot_point'] = {
     this.appendValueInput('y')
       .setCheck('Number')
       .appendField('y');
+    this.appendValueInput('datasetindex')
+      .setCheck('Number')
+      .appendField('dataset');
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setStyle('robot_blocks');
@@ -58,6 +61,9 @@ Blockly.Blocks['plot_line_segment'] = {
     this.appendValueInput('y2')
       .setCheck('Number')
       .appendField('y2');
+    this.appendValueInput('datasetindex')
+      .setCheck('Number')
+      .appendField('dataset');
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setStyle('robot_blocks');
@@ -68,21 +74,27 @@ Blockly.Blocks['plot_line_segment'] = {
 
 Blockly.Blocks['plot_arrow_segment'] = {
   init: function() {
-    this.appendValueInput('x1')
+    this.appendValueInput('x')
       .setCheck('Number')
-      .appendField('arrow x1');
-    this.appendValueInput('y1')
+      .appendField('arrow x');
+    this.appendValueInput('y')
       .setCheck('Number')
-      .appendField('y1');
-    this.appendValueInput('x2')
+      .appendField('y');
+    this.appendValueInput('theta')
       .setCheck('Number')
-      .appendField('x2');
-    this.appendValueInput('y2')
-      .setCheck('Number')
-      .appendField('y2');
-    this.appendValueInput('arrow_size')
+      .appendField('theta');
+    this.appendValueInput('size')
       .setCheck('Number')
       .appendField('size');
+    this.appendValueInput('length')
+      .setCheck('Number')
+      .appendField('length');
+    this.appendValueInput('color')
+      .setCheck('Color')
+      .appendField('color');
+    this.appendValueInput('datasetindex')
+      .setCheck('Number')
+      .appendField('dataset');
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setStyle('robot_blocks');
@@ -118,7 +130,8 @@ javascript.javascriptGenerator.forBlock['plot_set_axes'] = function(block, gener
 javascript.javascriptGenerator.forBlock['plot_point'] = function(block, generator) {
   var value_x = generator.valueToCode(block, 'x', javascript.Order.NONE) || '0';
   var value_y = generator.valueToCode(block, 'y', javascript.Order.NONE) || '0';
-  return 'progFuncs.point(' + value_x + ', ' + value_y + ');\n';
+  var value_datasetindex = generator.valueToCode(block, 'datasetindex', javascript.Order.NONE) || '0';
+  return 'progFuncs.point(' + value_x + ', ' + value_y + ', ' + value_datasetindex + ');\n';
 };
 
 javascript.javascriptGenerator.forBlock['plot_line_segment'] = function(block, generator) {
@@ -126,17 +139,19 @@ javascript.javascriptGenerator.forBlock['plot_line_segment'] = function(block, g
   var value_y1 = generator.valueToCode(block, 'y1', javascript.Order.NONE) || '0';
   var value_x2 = generator.valueToCode(block, 'x2', javascript.Order.NONE) || '0';
   var value_y2 = generator.valueToCode(block, 'y2', javascript.Order.NONE) || '0';
-  return 'progFuncs.line(' + value_x1 + ', ' + value_y1 + ', ' + value_x2 + ', ' + value_y2 + ');\n';
+  var value_datasetindex = generator.valueToCode(block, 'datasetindex', javascript.Order.NONE) || '0';
+  return 'progFuncs.line(' + value_x1 + ', ' + value_y1 + ', ' + value_x2 + ', ' + value_y2 + ', ' + value_datasetindex + ');\n';
 };
 
 javascript.javascriptGenerator.forBlock['plot_arrow_segment'] = function(block, generator) {
-  var value_x1 = generator.valueToCode(block, 'x1', javascript.Order.NONE) || '0';
-  var value_y1 = generator.valueToCode(block, 'y1', javascript.Order.NONE) || '0';
-  var value_x2 = generator.valueToCode(block, 'x2', javascript.Order.NONE) || '1';
-  var value_y2 = generator.valueToCode(block, 'y2', javascript.Order.NONE) || '0';
-  var value_arrow_size = generator.valueToCode(block, 'arrow_size', javascript.Order.NONE) || '0.5';
-  var code = 'progFuncs.arrow(' + value_x1 + ', ' + value_y1 + ', ' + value_x2 + ', ' + value_y2 + ', ' + value_arrow_size + ');\n';
-  return code;
+  var value_x = generator.valueToCode(block, 'x', javascript.Order.NONE) || '0';
+  var value_y = generator.valueToCode(block, 'y', javascript.Order.NONE) || '0';
+  var value_theta = generator.valueToCode(block, 'theta', javascript.Order.NONE) || '0';
+  var value_size = generator.valueToCode(block, 'size', javascript.Order.NONE) || '0.5';
+  var value_length = generator.valueToCode(block, 'length', javascript.Order.NONE) || '1';
+  var value_color = generator.valueToCode(block, 'color', javascript.Order.NONE) || 'undefined';
+  var value_datasetindex = generator.valueToCode(block, 'datasetindex', javascript.Order.NONE) || '0';
+  return 'progFuncs.directed_line(' + value_x + ', ' + value_y + ', ' + value_theta + ', ' + value_size + ', ' + value_length + ', ' + value_color + ', ' + value_datasetindex + ');\n';
 };
 
 javascript.javascriptGenerator.forBlock['plot_clear'] = function(block, generator) {

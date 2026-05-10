@@ -879,6 +879,14 @@ const plot_toolbox = {
                 },
               },
             },
+            datasetindex: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 0,
+                },
+              },
+            },
           },
         },
         {
@@ -917,13 +925,21 @@ const plot_toolbox = {
                 },
               },
             },
+            datasetindex: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 0,
+                },
+              },
+            },
           },
         },
         {
           type: 'plot_arrow_segment',
           kind: 'block',
           inputs: {
-            x1: {
+            x: {
               shadow: {
                 type: 'math_number',
                 fields: {
@@ -931,7 +947,7 @@ const plot_toolbox = {
                 },
               },
             },
-            y1: {
+            y: {
               shadow: {
                 type: 'math_number',
                 fields: {
@@ -939,7 +955,23 @@ const plot_toolbox = {
                 },
               },
             },
-            x2: {
+            theta: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 0,
+                },
+              },
+            },
+            size: {
+              shadow: {
+                type: 'math_number',
+                fields: {
+                  NUM: 0.5,
+                },
+              },
+            },
+            length: {
               shadow: {
                 type: 'math_number',
                 fields: {
@@ -947,19 +979,19 @@ const plot_toolbox = {
                 },
               },
             },
-            y2: {
+            color: {
               shadow: {
-                type: 'math_number',
+                type: 'color_picker',
                 fields: {
-                  NUM: 2,
+                  COLOR: '#c8553d',
                 },
               },
             },
-            arrow_size: {
+            datasetindex: {
               shadow: {
                 type: 'math_number',
                 fields: {
-                  NUM: 0.5,
+                  NUM: 0,
                 },
               },
             },

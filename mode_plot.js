@@ -32,7 +32,7 @@
       '  <div class="plot-mode__canvas-wrap">',
       '    <canvas id="plot-chart" aria-label="plot chart"></canvas>',
       '  </div>',
-      '  <p class="plot-mode__hint">Use progFuncs.point(x, y), progFuncs.line(x1, y1, x2, y2), progFuncs.directed_line(x, y, theta, size, length, color), and progFuncs.set_plot_range(xMin, xMax, yMin, yMax).</p>',
+      '  <p class="plot-mode__hint">Use progFuncs.point(x, y, datasetIndex), progFuncs.line(x1, y1, x2, y2, datasetIndex), progFuncs.directed_line(x, y, theta, size, length, color, datasetIndex), and progFuncs.set_plot_range(xMin, xMax, yMin, yMax).</p>',
       '</section>',
     ].join('');
   };
@@ -207,10 +207,27 @@
     };
   };
 
+  myGlobal.makePlotGapPoint = function makePlotGapPoint() {
+    return {x: null, y: null};
+  };
+
   myGlobal.toPlotNumber = function toPlotNumber(value, name) {
     const numericValue = Number(value);
     if (!Number.isFinite(numericValue)) {
       throw new Error(`${name} must be a finite number`);
+    }
+
+    return numericValue;
+  };
+
+  myGlobal.toDatasetIndex = function toDatasetIndex(value, fallback = 0) {
+    if (value === undefined || value === null || value === '') {
+      return fallback;
+    }
+
+    const numericValue = Number(value);
+    if (!Number.isInteger(numericValue) || numericValue < 0) {
+      throw new Error('datasetIndex must be a non-negative integer');
     }
 
     return numericValue;
@@ -354,35 +371,55 @@
 
   myGlobal.point = function point(x, y, datasetIndex = 0) {
     const baseConfig = myGlobal.clonePlotConfig(myGlobal.ensurePlotConfig());
-    if (!baseConfig.data.datasets[datasetIndex]) {
-      baseConfig.data.datasets[datasetIndex] = myGlobal.makePointDataset('Points');
+    const targetDatasetIndex = myGlobal.toDatasetIndex(datasetIndex, 0);
+    if (!baseConfig.data.datasets[targetDatasetIndex]) {
+      baseConfig.data.datasets[targetDatasetIndex] = myGlobal.makePointDataset(`Points ${targetDatasetIndex + 1}`);
     }
-    if (!Array.isArray(baseConfig.data.datasets[datasetIndex].data)) {
-      baseConfig.data.datasets[datasetIndex].data = [];
+    if (!Array.isArray(baseConfig.data.datasets[targetDatasetIndex].data)) {
+      baseConfig.data.datasets[targetDatasetIndex].data = [];
     }
 
-    baseConfig.data.datasets[datasetIndex].type = 'scatter';
-    baseConfig.data.datasets[datasetIndex].showLine = false;
-    baseConfig.data.datasets[datasetIndex].data.push({
+    baseConfig.data.datasets[targetDatasetIndex].data.push({
       x: Number(x),
       y: Number(y),
     });
     myGlobal.setPlotConfig(baseConfig);
   };
 
-  myGlobal.line = function line(x1, y1, x2, y2, datasetLabel) {
+  myGlobal.line = function line(x1, y1, x2, y2, datasetIndexOrLabel) {
     const baseConfig = myGlobal.clonePlotConfig(myGlobal.ensurePlotConfig());
-    const nextDataset = myGlobal.makeLineDataset(datasetLabel || `Line ${baseConfig.data.datasets.length + 1}`);
 
-    nextDataset.data = [
+    if (typeof datasetIndexOrLabel === 'string') {
+      const nextDataset = myGlobal.makeLineDataset(datasetIndexOrLabel || `Line ${baseConfig.data.datasets.length + 1}`);
+      nextDataset.data = [
+        { x: Number(x1), y: Number(y1) },
+        { x: Number(x2), y: Number(y2) },
+      ];
+      baseConfig.data.datasets.push(nextDataset);
+      myGlobal.setPlotConfig(baseConfig);
+      return;
+    }
+
+    const targetDatasetIndex = myGlobal.toDatasetIndex(datasetIndexOrLabel, 0);
+    if (!baseConfig.data.datasets[targetDatasetIndex]) {
+      baseConfig.data.datasets[targetDatasetIndex] = myGlobal.makeLineDataset(`Line ${targetDatasetIndex + 1}`);
+    }
+    if (!Array.isArray(baseConfig.data.datasets[targetDatasetIndex].data)) {
+      baseConfig.data.datasets[targetDatasetIndex].data = [];
+    }
+
+    if (baseConfig.data.datasets[targetDatasetIndex].data.length > 0) {
+      baseConfig.data.datasets[targetDatasetIndex].data.push(myGlobal.makePlotGapPoint());
+    }
+
+    baseConfig.data.datasets[targetDatasetIndex].data.push(
       { x: Number(x1), y: Number(y1) },
       { x: Number(x2), y: Number(y2) },
-    ];
-    baseConfig.data.datasets.push(nextDataset);
+    );
     myGlobal.setPlotConfig(baseConfig);
   };
 
-  myGlobal.directedLine = function directedLine(x, y, theta, size, length, color) {
+  myGlobal.directedLine = function directedLine(x, y, theta, size, length, color, datasetIndex) {
     const centerX = myGlobal.toPlotNumber(x, 'x');
     const centerY = myGlobal.toPlotNumber(y, 'y');
     const angle = myGlobal.toPlotAngleRadians(theta);
@@ -398,8 +435,26 @@
     const endPoint = { x: centerX + deltaX, y: centerY + deltaY };
 
     const baseConfig = myGlobal.clonePlotConfig(myGlobal.ensurePlotConfig());
-    const nextDataset = myGlobal.makeLineDataset(`Directed Line ${baseConfig.data.datasets.length + 1}`, color);
-    nextDataset.data = [startPoint, endPoint];
+    let targetDataset;
+
+    if (datasetIndex === undefined || datasetIndex === null || datasetIndex === '') {
+      targetDataset = myGlobal.makeLineDataset(`Directed Line ${baseConfig.data.datasets.length + 1}`, color);
+      targetDataset.data = [startPoint, endPoint];
+      baseConfig.data.datasets.push(targetDataset);
+    } else {
+      const targetDatasetIndex = myGlobal.toDatasetIndex(datasetIndex, 0);
+      if (!baseConfig.data.datasets[targetDatasetIndex]) {
+        baseConfig.data.datasets[targetDatasetIndex] = myGlobal.makeLineDataset(`Directed Line ${targetDatasetIndex + 1}`, color);
+      }
+      targetDataset = baseConfig.data.datasets[targetDatasetIndex];
+      if (!Array.isArray(targetDataset.data)) {
+        targetDataset.data = [];
+      }
+      if (targetDataset.data.length > 0) {
+        targetDataset.data.push(myGlobal.makePlotGapPoint());
+      }
+      targetDataset.data.push(startPoint, endPoint);
+    }
 
     if (arrowSize > 0) {
       const arrowSpread = Math.PI / 6;
@@ -412,10 +467,16 @@
         y: endPoint.y + Math.sin(angle + Math.PI + arrowSpread) * arrowSize,
       };
 
-      nextDataset.data.push(null, endPoint, leftWing, null, endPoint, rightWing);
+      targetDataset.data.push(
+        myGlobal.makePlotGapPoint(),
+        endPoint,
+        leftWing,
+        myGlobal.makePlotGapPoint(),
+        endPoint,
+        rightWing,
+      );
     }
 
-    baseConfig.data.datasets.push(nextDataset);
     myGlobal.setPlotConfig(baseConfig);
   };
 
@@ -523,17 +584,17 @@
     progFuncs.point = (x, y, datasetIndex) => {
       myGlobal.point(x, y, datasetIndex);
     };
-    progFuncs.line = (x1, y1, x2, y2, datasetLabel) => {
-      myGlobal.line(x1, y1, x2, y2, datasetLabel);
+    progFuncs.line = (x1, y1, x2, y2, datasetIndexOrLabel) => {
+      myGlobal.line(x1, y1, x2, y2, datasetIndexOrLabel);
     };
-    progFuncs.directed_line = (x, y, theta, size, length, color) => {
-      myGlobal.directedLine(x, y, theta, size, length, color);
+    progFuncs.directed_line = (x, y, theta, size, length, color, datasetIndex) => {
+      myGlobal.directedLine(x, y, theta, size, length, color, datasetIndex);
     };
     progFuncs.arrow = (x1, y1, x2, y2, size, color) => {
       myGlobal.arrow(x1, y1, x2, y2, size, color);
     };
-    progFuncs.plot_directed_line = (x, y, theta, size, length, color) => {
-      myGlobal.directedLine(x, y, theta, size, length, color);
+    progFuncs.plot_directed_line = (x, y, theta, size, length, color, datasetIndex) => {
+      myGlobal.directedLine(x, y, theta, size, length, color, datasetIndex);
     };
     progFuncs.set_plot_range = (xMin, xMax, yMin, yMax) => {
       myGlobal.setPlotRange(xMin, xMax, yMin, yMax);
