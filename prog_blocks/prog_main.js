@@ -81,3 +81,10 @@ progFuncs.get_message = get_message;
 progFuncs.get_last_message = get_last_message;
 //
 progFuncs.get_obj_key = get_obj_key;
+//
+progFuncs.stringify = function stringify(obj) {
+  return JSON.stringify(obj);
+};
+progFuncs.json_parse = function parse(str_json) {
+  return JSON.parse(str_json);
+};

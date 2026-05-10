@@ -869,10 +869,75 @@ const prog_toolbox = {
           kind: 'block',
         },
         {
-          type: 'object_key',
+          type: 'create_object_with',
           kind: 'block',
         },
-
+        {
+          type: 'object_property',
+          kind: 'block',
+          inputs: {
+            key: {
+              shadow: {
+                type: 'text',
+                fields: {
+                  TEXT: 'key',
+                },
+              },
+            },
+            value: {
+              shadow: {
+                type: 'text',
+                fields: {
+                  TEXT: 'value',
+                },
+              },
+            },
+          },
+        },
+        {
+          type: 'object_add',
+          kind: 'block',
+          inputs: {
+            key: {
+              shadow: {
+                type: 'text',
+                fields: {
+                  TEXT: 'key',
+                },
+              },
+            },
+            value: {
+              shadow: {
+                type: 'text',
+                fields: {
+                  TEXT: 'value',
+                },
+              },
+            },
+          },
+        },
+        {
+          type: 'object_key',
+          kind: 'block',
+          inputs: {
+            key: {
+              shadow: {
+                type: 'text',
+                fields: {
+                  TEXT: 'key',
+                },
+              },
+            },
+          },
+        },
+        {
+          type: 'stringify',
+          kind: 'block',
+        },
+        {
+          type: 'json_parse',
+          kind: 'block',
+        },
       ],
     },
     {

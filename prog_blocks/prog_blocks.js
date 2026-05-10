@@ -357,15 +357,209 @@ Blockly.Blocks['get_last_message'] = {
 //};
 Blockly.Blocks['object_key'] = {
     init: function() {
+      this.setInputsInline(true);
+      this.appendValueInput('key')
+        .setCheck('String')
+        .appendField('key: ');
       this.appendValueInput('invalue')
-        .appendField('key:')
-        .appendField(new Blockly.FieldTextInput('key'), 'key');
-      this.setInputsInline(false);
+        .setCheck(null)
+        .appendField('obj: ');
       this.setOutput(true, null);
       this.setStyle('message_blocks');
       this.setTooltip("");
       this.setHelpUrl("");
     },
+};
+Blockly.Blocks['object_property'] = {
+    init: function() {
+        this.appendValueInput('key')
+            .setCheck('String')
+            .appendField('object key');
+        this.appendValueInput('value')
+            .setCheck(null)
+            .appendField('value');
+        this.setInputsInline(false);
+        this.setOutput(true, null);
+        this.setStyle('message_blocks');
+        this.setTooltip('Create one key/value entry for create_object_with.');
+        this.setHelpUrl('');
+    },
+};
+Blockly.Blocks['create_object_with'] = {
+    init: function() {
+        this.setStyle('message_blocks');
+        this.itemCount_ = 2;
+        this.updateShape_();
+        this.setOutput(true, null);
+        if (Blockly.icons && Blockly.icons.MutatorIcon) {
+            this.setMutator(new Blockly.icons.MutatorIcon(['create_object_with_item'], this));
+        } else if (Blockly.Mutator) {
+            this.setMutator(new Blockly.Mutator(['create_object_with_item']));
+        }
+        this.setTooltip('Create an object from connected key/value entries.');
+        this.setHelpUrl('');
+    },
+    mutationToDom: function() {
+        const container = document.createElement('mutation');
+        container.setAttribute('items', String(this.itemCount_));
+        return container;
+    },
+    domToMutation: function(xmlElement) {
+        const items = xmlElement.getAttribute('items');
+        this.itemCount_ = items ? parseInt(items, 10) : 0;
+        this.updateShape_();
+    },
+    saveExtraState: function() {
+        return {
+            itemCount: this.itemCount_,
+        };
+    },
+    loadExtraState: function(state) {
+        this.itemCount_ = state.itemCount || 0;
+        this.updateShape_();
+    },
+    decompose: function(workspace) {
+        const containerBlock = workspace.newBlock('create_object_with_container');
+        if (containerBlock.initSvg) {
+            containerBlock.initSvg();
+        }
+        let connection = containerBlock.getInput('STACK').connection;
+        for (let i = 0; i < this.itemCount_; i++) {
+            const itemBlock = workspace.newBlock('create_object_with_item');
+            if (itemBlock.initSvg) {
+                itemBlock.initSvg();
+            }
+            connection.connect(itemBlock.previousConnection);
+            connection = itemBlock.nextConnection;
+        }
+        return containerBlock;
+    },
+    compose: function(containerBlock) {
+        let itemBlock = containerBlock.getInputTargetBlock('STACK');
+        const connections = [];
+        while (itemBlock) {
+            if (!itemBlock.isInsertionMarker || !itemBlock.isInsertionMarker()) {
+                connections.push(itemBlock.valueConnection_ || null);
+            }
+            itemBlock = itemBlock.getNextBlock();
+        }
+        for (let i = 0; i < this.itemCount_; i++) {
+            const input = this.getInput('ADD' + i);
+            const connection = input && input.connection ? input.connection.targetConnection : null;
+            if (connection && !connections.includes(connection)) {
+                connection.disconnect();
+            }
+        }
+        this.itemCount_ = connections.length;
+        this.updateShape_();
+        for (let i = 0; i < this.itemCount_; i++) {
+            if (connections[i]) {
+                connections[i].reconnect(this, 'ADD' + i);
+            }
+        }
+    },
+    saveConnections: function(containerBlock) {
+        let itemBlock = containerBlock.getInputTargetBlock('STACK');
+        let index = 0;
+        while (itemBlock) {
+            if (!itemBlock.isInsertionMarker || !itemBlock.isInsertionMarker()) {
+                const input = this.getInput('ADD' + index);
+                itemBlock.valueConnection_ = input && input.connection
+                    ? input.connection.targetConnection
+                    : null;
+                index += 1;
+            }
+            itemBlock = itemBlock.getNextBlock();
+        }
+    },
+    updateShape_: function() {
+        if (this.itemCount_ && this.getInput('EMPTY')) {
+            this.removeInput('EMPTY');
+        } else if (!this.itemCount_ && !this.getInput('EMPTY')) {
+            this.appendDummyInput('EMPTY')
+                .appendField('create empty object');
+        }
+        for (let i = 0; i < this.itemCount_; i++) {
+            if (!this.getInput('ADD' + i)) {
+                const input = this.appendValueInput('ADD' + i)
+                    .setCheck(null);
+                if (i === 0) {
+                    input.appendField('create object with');
+                }
+            }
+        }
+        for (let i = this.itemCount_; this.getInput('ADD' + i); i++) {
+            this.removeInput('ADD' + i);
+        }
+    },
+};
+Blockly.Blocks['create_object_with_container'] = {
+    init: function() {
+        this.setStyle('message_blocks');
+        this.appendDummyInput()
+            .appendField('object');
+        this.appendStatementInput('STACK');
+        this.setTooltip('Add, remove, or reorder properties.');
+        this.contextMenu = false;
+    },
+};
+Blockly.Blocks['create_object_with_item'] = {
+    init: function() {
+        this.setStyle('message_blocks');
+        this.appendDummyInput()
+            .appendField('property');
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setTooltip('Add a property to the object.');
+        this.contextMenu = false;
+    },
+};
+Blockly.Blocks['object_add'] = {
+        init: function() {
+            this.appendValueInput('obj')
+                .setCheck(null)
+                .appendField('object add to');
+            this.appendValueInput('key')
+                .setCheck('String')
+                .appendField('key');
+            this.appendValueInput('value')
+                .setCheck(null)
+                .appendField('value');
+            this.setInputsInline(false);
+            this.setPreviousStatement(true, null);
+            this.setNextStatement(true, null);
+            this.setStyle('message_blocks');
+            this.setTooltip('Add a key/value pair to an object.');
+            this.setHelpUrl('');
+        },
+};
+Blockly.Blocks['stringify'] = {
+    init: function() {
+        this.setInputsInline(true);
+        this.appendValueInput("inobj")
+            .setCheck(null)
+            .appendField("object");
+        this.appendDummyInput()
+            .appendField('to string');
+        this.setOutput(true, null);
+        this.setStyle('message_blocks')
+        this.setTooltip("");
+        this.setHelpUrl("");
+    }
+};
+Blockly.Blocks['json_parse'] = {
+    init: function() {
+        this.setInputsInline(true);
+        this.appendValueInput("instr")
+            .setCheck(null)
+            .appendField("string");
+        this.appendDummyInput()
+            .appendField('to object');
+        this.setOutput(true, null);
+        this.setStyle('message_blocks')
+        this.setTooltip("");
+        this.setHelpUrl("");
+    }
 };
 //
 // code generations
@@ -504,9 +698,42 @@ javascript.javascriptGenerator.forBlock['is_list'] = function(block, generator) 
 //  return [code, javascript.Order.NONE];
 //};
 javascript.javascriptGenerator.forBlock['object_key'] = function(block, generator) {
-  const key = block.getFieldValue('key');
-  const inv = generator.valueToCode(block, 'invalue', javascript.Order.ATOMIC);
-  var code = 'progFuncs.get_obj_key(' + inv + ', "' + key + '")';
+    const inv = generator.valueToCode(block, 'invalue', javascript.Order.ATOMIC) || '{}';
+    const key = generator.valueToCode(block, 'key', javascript.Order.ATOMIC) || '"key"';
+    var code = 'progFuncs.get_obj_key(' + inv + ', ' + key + ')';
+  // TODO: Change ORDER_NONE to the correct strength.
+  return [code, javascript.Order.NONE];
+};
+javascript.javascriptGenerator.forBlock['object_property'] = function(block, generator) {
+    const key = generator.valueToCode(block, 'key', javascript.Order.ATOMIC) || '""';
+    const value = generator.valueToCode(block, 'value', javascript.Order.ATOMIC) || 'null';
+    return ['(function(){var obj={};obj[' + key + ']=' + value + ';return obj;})()', javascript.Order.FUNCTION_CALL];
+};
+javascript.javascriptGenerator.forBlock['create_object_with'] = function(block, generator) {
+    const entries = [];
+    for (let i = 0; i < block.itemCount_; i++) {
+        entries.push(generator.valueToCode(block, 'ADD' + i, javascript.Order.ATOMIC) || '({})');
+    }
+    if (!entries.length) {
+        return ['{}', javascript.Order.ATOMIC];
+    }
+    return ['(function(parts){var obj={};for(var i=0;i<parts.length;i++){for(var key in parts[i]){obj[key]=parts[i][key];}}return obj;})([' + entries.join(', ') + '])', javascript.Order.FUNCTION_CALL];
+};
+javascript.javascriptGenerator.forBlock['object_add'] = function(block, generator) {
+    const obj = generator.valueToCode(block, 'obj', javascript.Order.ATOMIC) || '({})';
+    const key = generator.valueToCode(block, 'key', javascript.Order.ATOMIC) || '""';
+    const value = generator.valueToCode(block, 'value', javascript.Order.ATOMIC) || 'null';
+    return obj + '[' + key + '] = ' + value + ';\n';
+};
+javascript.javascriptGenerator.forBlock['stringify'] = function(block, generator) {
+  var in_obj = generator.valueToCode(block, 'inobj', javascript.Order.ATOMIC);
+  var code = 'progFuncs.stringify(' + in_obj + ')';
+  // TODO: Change ORDER_NONE to the correct strength.
+  return [code, javascript.Order.NONE];
+};
+javascript.javascriptGenerator.forBlock['json_parse'] = function(block, generator) {
+  var in_str = generator.valueToCode(block, 'instr', javascript.Order.ATOMIC);
+  var code = 'progFuncs.json_parse(' + in_str + ')';
   // TODO: Change ORDER_NONE to the correct strength.
   return [code, javascript.Order.NONE];
 };
