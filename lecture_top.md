@@ -62,6 +62,7 @@ under construction
 
 [サンプルプログラム(石とりゲーム)](samples/prog/stone_game.xml) [open](prog_client.html?prog=samples/prog/stone_game.xml)
 
+[オブジェクト型](samples/prog/sample_object.xml) [open](prog_client.html?prog=samples/prog/sample_object.xml)
 
 ### 出版購読型通信
 
@@ -94,8 +95,9 @@ under construction
 
 ### プロットの表示
 
-under construction
+[プロットのサンプル](samples/plot/sample_plots.xml)
 
+[mouseをサブスクライブしてプロット](samples/plot/plot_mouse_callback.xml)
 
 ### デバイス
 
