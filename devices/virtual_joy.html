@@ -573,10 +573,10 @@
             <button class="btn small hold" data-button="L2">L2</button>
           </div>
           <div class="panel dpad">
-            <button class="btn hold up" data-button="up">up</button>
-            <button class="btn hold left" data-button="left">left</button>
-            <button class="btn hold right" data-button="right">right</button>
-            <button class="btn hold down" data-button="down">down</button>
+            <button class="btn hold up" data-button="up">^</button>
+            <button class="btn hold left" data-button="left">&lt;</button>
+            <button class="btn hold right" data-button="right">&gt;</button>
+            <button class="btn hold down" data-button="down">v</button>
           </div>
         </div>
 
@@ -701,7 +701,7 @@
 
     function render() {
       //statusEl.textContent = JSON.stringify(state, null, 2);
-      console.log(state);
+      //console.log(state);//debug
       myGlobal.BM.msg_pool.publish('joy', state);
     }
 
