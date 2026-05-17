@@ -21,6 +21,8 @@ const carTurnSpeed = 1.4;
 const carMaxSpeed = 6;
 const bounceRestitution = 0.9;
 const surfaceFriction = 0.2;
+const goalRadius = 1.2;
+const goalHeight = 0.02;
 
 function isObstacleSpawnSafe(x, z) {
   const minX = carSize.width / 2 + obstacleSize / 2;
@@ -40,6 +42,33 @@ function createSafeObstaclePosition() {
   }
 
   return new BABYLON.Vector3(spawnRange, obstacleSize / 2, spawnRange);
+}
+
+function isGoalSpawnSafe(x, z, obstaclePositions) {
+  if (!isObstacleSpawnSafe(x, z)) {
+    return false;
+  }
+
+  const minGoalDistance = obstacleSize / 2 + goalRadius;
+
+  return obstaclePositions.every((position) => {
+    const dx = position.x - x;
+    const dz = position.z - z;
+    return Math.hypot(dx, dz) > minGoalDistance;
+  });
+}
+
+function createSafeGoalPosition(obstaclePositions) {
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const x = Math.random() * spawnRange * 2 - spawnRange;
+    const z = Math.random() * spawnRange * 2 - spawnRange;
+
+    if (isGoalSpawnSafe(x, z, obstaclePositions)) {
+      return new BABYLON.Vector3(x, goalHeight / 2, z);
+    }
+  }
+
+  return new BABYLON.Vector3(spawnRange - goalRadius, goalHeight / 2, spawnRange - goalRadius);
 }
 
 function clampHorizontalVelocity(body) {
@@ -97,6 +126,10 @@ const createScene = async function () {
   const obsMat = new BABYLON.StandardMaterial("oMat", scene);
   obsMat.ambientColor = new BABYLON.Color3(0.8, 0.2, 0.2);
 
+  const goalMat = new BABYLON.StandardMaterial("goalMat", scene);
+  goalMat.ambientColor = new BABYLON.Color3(1, 0.9, 0.1);
+  goalMat.emissiveColor = new BABYLON.Color3(0.8, 0.7, 0.1);
+
   const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 100, height: 100 }, scene);
   ground.material = groundMat;
 
@@ -116,10 +149,14 @@ const createScene = async function () {
   car.physicsBody.setAngularDamping(8);
   car.physicsBody.disablePreStep = false;
 
+  const obstaclePositions = [];
+
   for (let i = 0; i < obstacleCount; i++) {
     const box = BABYLON.MeshBuilder.CreateBox("obs", { size: obstacleSize }, scene);
-    box.position.copyFrom(createSafeObstaclePosition());
+    const obstaclePosition = createSafeObstaclePosition();
+    box.position.copyFrom(obstaclePosition);
     box.material = obsMat;
+    obstaclePositions.push(obstaclePosition.clone());
 
     const obstacleAggregate = new BABYLON.PhysicsAggregate(box, BABYLON.PhysicsShapeType.BOX, {
       mass: 0,
@@ -129,6 +166,17 @@ const createScene = async function () {
 
     obstacleAggregate.body.disablePreStep = false;
   }
+
+  const goalPosition = createSafeGoalPosition(obstaclePositions);
+  const goal = BABYLON.MeshBuilder.CreateCylinder("goal", {
+    diameter: goalRadius * 2,
+    height: goalHeight,
+    tessellation: 24,
+  }, scene);
+  goal.position.copyFrom(goalPosition);
+  goal.material = goalMat;
+  goal.isPickable = false;
+  console.log("goal position:", { x: goalPosition.x, y: goalPosition.y, z: goalPosition.z });
 
   const rayPoints = [];
   const rayColors = [];
