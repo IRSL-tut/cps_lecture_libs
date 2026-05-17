@@ -12,9 +12,15 @@ const obstacleCount = 12;
 const obstacleSize = 2;
 const carSize = {
   width: 1.2,
+  height: 0.2,
   depth: 1.8,
 };
 const spawnRange = 15;
+const carMoveImpulse = 0.2;
+const carTurnSpeed = 1.4;
+const carMaxSpeed = 6;
+const bounceRestitution = 0.9;
+const surfaceFriction = 0.2;
 
 function isObstacleSpawnSafe(x, z) {
   const minX = carSize.width / 2 + obstacleSize / 2;
@@ -36,17 +42,31 @@ function createSafeObstaclePosition() {
   return new BABYLON.Vector3(spawnRange, obstacleSize / 2, spawnRange);
 }
 
-function isCarColliding(car, obstacles) {
-  car.computeWorldMatrix(true);
+function clampHorizontalVelocity(body) {
+  const velocity = body.getLinearVelocity();
 
-  return obstacles.some((obstacle) => {
-    obstacle.computeWorldMatrix(true);
-    return car.intersectsMesh(obstacle, false);
-  });
+  if (!velocity) {
+    return;
+  }
+
+  velocity.y = 0;
+
+  const horizontalSpeed = Math.hypot(velocity.x, velocity.z);
+  if (horizontalSpeed > carMaxSpeed) {
+    const scale = carMaxSpeed / horizontalSpeed;
+    velocity.x *= scale;
+    velocity.z *= scale;
+  }
+
+  body.setLinearVelocity(velocity);
 }
 
-const createScene = function () {
+const createScene = async function () {
   const scene = new BABYLON.Scene(engine);
+  const havokInstance = await HavokPhysics();
+  const physicsPlugin = new BABYLON.HavokPlugin(true, havokInstance);
+
+  scene.enablePhysics(BABYLON.Vector3.Zero(), physicsPlugin);
 
   scene.ambientColor = new BABYLON.Color3(1, 1, 1);
   scene.clearColor = new BABYLON.Color4(0.05, 0.05, 0.05, 1);
@@ -80,17 +100,34 @@ const createScene = function () {
   const ground = BABYLON.MeshBuilder.CreateGround("ground", { width: 100, height: 100 }, scene);
   ground.material = groundMat;
 
-  const car = BABYLON.MeshBuilder.CreateBox("car", { width: carSize.width, height: 0.2, depth: carSize.depth }, scene);
+  const car = BABYLON.MeshBuilder.CreateBox("car", { width: carSize.width, height: carSize.height, depth: carSize.depth }, scene);
   car.position.y = 0.1;
   car.material = carMat;
+  car.rotationQuaternion = BABYLON.Quaternion.Identity();
 
-  const obstacles = [];
+  const carAggregate = new BABYLON.PhysicsAggregate(car, BABYLON.PhysicsShapeType.BOX, {
+    mass: 1,
+    restitution: bounceRestitution,
+    friction: surfaceFriction,
+  }, scene);
+
+  car.physicsBody.setGravityFactor(0);
+  car.physicsBody.setLinearDamping(2.5);
+  car.physicsBody.setAngularDamping(8);
+  car.physicsBody.disablePreStep = false;
 
   for (let i = 0; i < obstacleCount; i++) {
     const box = BABYLON.MeshBuilder.CreateBox("obs", { size: obstacleSize }, scene);
     box.position.copyFrom(createSafeObstaclePosition());
     box.material = obsMat;
-    obstacles.push(box);
+
+    const obstacleAggregate = new BABYLON.PhysicsAggregate(box, BABYLON.PhysicsShapeType.BOX, {
+      mass: 0,
+      restitution: bounceRestitution,
+      friction: surfaceFriction,
+    }, scene);
+
+    obstacleAggregate.body.disablePreStep = false;
   }
 
   const rayPoints = [];
@@ -117,25 +154,22 @@ const createScene = function () {
   });
 
   scene.registerBeforeRender(() => {
-    // move car
-    const vy = (keys.w ? 0.15 : 0) - (keys.s ? 0.15 : 0);
-    const vx = (keys.d ? 0.1 : 0) -  (keys.a ? 0.1 : 0);
-    const vr = (keys.e ? 0.05 : 0) - (keys.q ? 0.05 : 0);
+    const moveForward = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
+    const moveSideways = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
+    const turnInput = (keys.e ? 1 : 0) - (keys.q ? 1 : 0);
 
-    car.rotation.y += vr;
-    if (isCarColliding(car, obstacles)) {
-      car.rotation.y -= vr;
+    const rightDirection = car.getDirection(BABYLON.Axis.X);
+    const forwardDirection = car.getDirection(BABYLON.Axis.Z);
+    const impulseDirection = rightDirection.scale(moveSideways).add(forwardDirection.scale(moveForward));
+
+    if (impulseDirection.lengthSquared() > 0) {
+      impulseDirection.y = 0;
+      impulseDirection.normalize().scaleInPlace(carMoveImpulse);
+      car.physicsBody.applyImpulse(impulseDirection, car.position);
     }
 
-    car.translate(BABYLON.Axis.X, vx, BABYLON.Space.LOCAL);
-    if (isCarColliding(car, obstacles)) {
-      car.translate(BABYLON.Axis.X, -vx, BABYLON.Space.LOCAL);
-    }
-
-    car.translate(BABYLON.Axis.Z, vy, BABYLON.Space.LOCAL);
-    if (isCarColliding(car, obstacles)) {
-      car.translate(BABYLON.Axis.Z, -vy, BABYLON.Space.LOCAL);
-    }
+    car.physicsBody.setAngularVelocity(new BABYLON.Vector3(0, turnInput * carTurnSpeed, 0));
+    clampHorizontalVelocity(car.physicsBody);
 
     // render distances
     const rayLength = 100;
@@ -184,6 +218,14 @@ const createScene = function () {
   return scene;
 };
 
-const scene = createScene();
-engine.runRenderLoop(() => scene.render());
+async function initializeScene() {
+  const scene = await createScene();
+
+  engine.runRenderLoop(() => scene.render());
+}
+
+initializeScene().catch((error) => {
+  console.error("Failed to initialize random obstacles scene", error);
+});
+
 window.addEventListener("resize", () => engine.resize());
