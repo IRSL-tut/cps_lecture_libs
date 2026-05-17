@@ -226,8 +226,8 @@ const createScene = async function () {
     const dists = [];
 
     for (let i = 0; i < 8; i++) {
-      const angle = i * (Math.PI / 4) + car.rotation.y;
-      const direction = new BABYLON.Vector3(Math.sin(angle), 0, Math.cos(angle));
+      const localRayDirection = new BABYLON.Vector3(Math.sin(i * (Math.PI / 4)), 0, Math.cos(i * (Math.PI / 4)));
+      const direction = car.getDirection(localRayDirection);
 
       const rayOrigin = car.position.clone();
       const lineOrigin = car.position.clone();
