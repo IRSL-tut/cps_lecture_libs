@@ -126,6 +126,8 @@
       <button class="button" onclick="startVibration()" >Start Vibration</button> <div><!-- dummy element --></div>
       <button class="button" onclick="startSensors()" >Start Sensors</button> <div><!-- dummy element --></div>
       <div><br><!-- dummy element --></div><div><!-- dummy element --></div>
+      <button class="button" onclick="startObstacles()" >Start Obstacles Environment</button> <div><!-- dummy element --></div>
+      <button class="button" onclick="startMaze()" >Start Maze Environment</button> <div><!-- dummy element --></div>
     </div>
     <textarea id="textarea"></textarea>
   </div>
@@ -344,6 +346,33 @@
             "./devices/sensor-api.html",
             tabname,
             "top=50,left=50,width=740,height=740,menubar=no,toolbar=no,location=no"
+        );
+        myGlobal.clients.set(tabname, new_w);
+        myGlobal.clientCount += 1;
+        updateClientList();
+    }
+    //// environment
+    function startObstacles() {
+        checkClientList();
+        var len = myGlobal.clientCount;
+        var tabname = 'Obstacles(env):' + len;
+        var new_w = window.open(
+            "./environments/env_obstacles.html",
+            tabname,
+            "menubar=no,toolbar=no,location=no"
+        );
+        myGlobal.clients.set(tabname, new_w);
+        myGlobal.clientCount += 1;
+        updateClientList();
+    }
+    function startMaze() {
+        checkClientList();
+        var len = myGlobal.clientCount;
+        var tabname = 'Maze(env):' + len;
+        var new_w = window.open(
+            "./environments/env_maze.html",
+            tabname,
+            "menubar=no,toolbar=no,location=no"
         );
         myGlobal.clients.set(tabname, new_w);
         myGlobal.clientCount += 1;
