@@ -86,6 +86,24 @@
     car.material = material;
     car.rotationQuaternion = BABYLON.Quaternion.Identity();
 
+    const frontMarkerMaterial = new BABYLON.StandardMaterial("carFrontMat", scene);
+    frontMarkerMaterial.ambientColor = new BABYLON.Color3(1, 0.95, 0.2);
+    frontMarkerMaterial.emissiveColor = new BABYLON.Color3(0.8, 0.7, 0.1);
+
+    const frontMarker = BABYLON.MeshBuilder.CreateBox("car-front-marker", {
+      width: activeConfig.carSize.width * 0.72,
+      height: activeConfig.carSize.height * 0.35,
+      depth: activeConfig.carSize.depth * 0.14,
+    }, scene);
+    frontMarker.parent = car;
+    frontMarker.position = new BABYLON.Vector3(
+      0,
+      activeConfig.carSize.height * 0.35,
+      activeConfig.carSize.depth * 0.34,
+    );
+    frontMarker.material = frontMarkerMaterial;
+    frontMarker.isPickable = false;
+
     const aggregate = new BABYLON.PhysicsAggregate(car, BABYLON.PhysicsShapeType.BOX, {
       mass: 1,
       restitution: activeConfig.bounceRestitution,
