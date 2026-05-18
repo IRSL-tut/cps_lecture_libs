@@ -353,10 +353,10 @@
     }
     //// environment
     function getEnvironmentWindowFeatures() {
-        const popupWidth = Math.max(640, window.outerWidth);
-        const popupHeight = Math.max(480, window.outerHeight);
-        const popupLeft = Math.max(0, window.screenX);
-        const popupTop = Math.max(0, window.screenY);
+        const popupWidth = Math.max(480, Math.floor(window.outerWidth * 2 / 3));
+        const popupHeight = Math.max(360, Math.floor(window.outerHeight * 2 / 3));
+        const popupLeft = Math.max(0, window.screenX + Math.floor((window.outerWidth - popupWidth) / 2));
+        const popupTop = Math.max(0, window.screenY + Math.floor((window.outerHeight - popupHeight) / 2));
 
         return `top=${popupTop},left=${popupLeft},width=${popupWidth},height=${popupHeight},menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no`;
     }
