@@ -142,10 +142,113 @@
     return keys;
   }
 
-  function applyCarControls(car, keys, activeConfig) {
-    const moveForward = (keys.w ? 1 : 0) - (keys.s ? 1 : 0);
-    const moveSideways = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
-    const turnInput = (keys.e ? 1 : 0) - (keys.q ? 1 : 0);
+  function normalizeAngle(angle) {
+    return Math.atan2(Math.sin(angle), Math.cos(angle));
+  }
+
+  function getHeadingAngle(car) {
+    const forwardDirection = car.getDirection(BABYLON.Axis.Z);
+    return Math.atan2(forwardDirection.x, forwardDirection.z);
+  }
+
+  function getGlobalMessageState() {
+    if (typeof myGlobal !== "undefined") {
+      return myGlobal;
+    }
+
+    return global.myGlobal ?? null;
+  }
+
+  function getMessagePool() {
+    const messageState = getGlobalMessageState();
+    if (!messageState || !messageState.BM) {
+      return null;
+    }
+
+    return messageState.BM.msg_pool ?? null;
+  }
+
+  function createMessagingBridge() {
+    const commandState = {
+      vx: 0,
+      vy: 0,
+      vtheta: 0,
+    };
+    let isSubscribed = false;
+
+    const coerceNumber = (value) => {
+      const numericValue = Number(value);
+      return Number.isFinite(numericValue) ? numericValue : 0;
+    };
+
+    return {
+      commandState,
+      ensureSubscribed() {
+        if (isSubscribed) {
+          return;
+        }
+
+        const msgPool = getMessagePool();
+        if (!msgPool) {
+          return;
+        }
+
+        msgPool.subscribe("command", (msg) => {
+          console.log('sub: command: ' + msg);
+          if (!Array.isArray(msg) || msg.length < 3) {
+            return;
+          }
+
+          commandState.vx = coerceNumber(msg[0]);
+          commandState.vy = coerceNumber(msg[1]);
+          commandState.vtheta = coerceNumber(msg[2]);
+        });
+
+        isSubscribed = true;
+      },
+      publish(topicName, payload) {
+        const msgPool = getMessagePool();
+        if (!msgPool) {
+          return;
+        }
+
+        msgPool.publish(topicName, payload);
+      },
+    };
+  }
+
+  function createPublishedState(car, goal, distances, activeConfig) {
+    const headingAngle = getHeadingAngle(car);
+    const goalOffset = goal.position.subtract(car.position);
+    goalOffset.y = 0;
+
+    const goalDistance = goalOffset.length();
+    const goalAngle = Math.atan2(goalOffset.x, goalOffset.z);
+
+    return {
+      car: {
+        sensor: distances,
+        direction: headingAngle,
+      },
+      state: {
+        is_goal: goalDistance <= activeConfig.goalRadius,
+        "goal-direction": normalizeAngle(goalAngle - headingAngle),
+      },
+      privilegedState: {
+        car: {
+          position: [car.position.x, car.position.y, car.position.z],
+        },
+        goal: {
+          position: [goal.position.x, goal.position.y, goal.position.z],
+        },
+      },
+    };
+  }
+
+  function applyCarControls(car, keys, activeConfig, commandState = { vx: 0, vy: 0, vtheta: 0 }) {
+    const moveForward = (keys.w ? 1 : 0) - (keys.s ? 1 : 0) + commandState.vy;
+    const moveSideways = (keys.d ? 1 : 0) - (keys.a ? 1 : 0) + commandState.vx;
+    const turnInput = (keys.e ? 1 : 0) - (keys.q ? 1 : 0) + commandState.vtheta;
 
     const rightDirection = car.getDirection(BABYLON.Axis.X);
     const forwardDirection = car.getDirection(BABYLON.Axis.Z);
@@ -252,6 +355,7 @@
     const goal = createGoal(scene, materials.goalMat, environment.goalPosition, activeConfig);
     const distElement = document.getElementById(options.distElementId ?? "dist");
     const keys = installKeyTracker();
+    const messagingBridge = createMessagingBridge();
     let rayLinesMesh = createRaySystem(scene);
 
     console.log("goal position:", {
@@ -274,14 +378,20 @@
     }
 
     scene.registerBeforeRender(() => {
-      applyCarControls(car, keys, activeConfig);
+      messagingBridge.ensureSubscribed();
+      applyCarControls(car, keys, activeConfig, messagingBridge.commandState);
 
       const sensorState = updateRaySystem(scene, car, rayLinesMesh);
       rayLinesMesh = sensorState.rayLinesMesh;
+      const publishedState = createPublishedState(car, goal, sensorState.rawDistances, activeConfig);
 
       if (distElement) {
         distElement.innerText = `Distances: ${sensorState.distances.join(" | ")}`;
       }
+
+      messagingBridge.publish("car", publishedState.car);
+      messagingBridge.publish("state", publishedState.state);
+      messagingBridge.publish("privilledged-state", publishedState.privilegedState);
 
       if (typeof options.beforeRender === "function") {
         options.beforeRender({
