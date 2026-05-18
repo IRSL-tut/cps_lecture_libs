@@ -1,10 +1,10 @@
 // TODO 車の形、色
 // TODO 障害物の形、色
-// TODO 車と障害物の衝突検知
-// TODO 衝突を検知したら移動を前に戻す
 // TODO subscribe
 // TODO publish = state(???)
-// mazeをこちらと同じにしてみる
+// DONE mazeをこちらと同じにしてみる
+// DONE 車と障害物の衝突検知
+// DONE 衝突を検知したら移動を前に戻す
 
 const canvas = document.getElementById("renderCanvas");
 const engine = new BABYLON.Engine(canvas, true);
