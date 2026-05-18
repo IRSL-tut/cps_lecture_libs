@@ -1,27 +1,30 @@
 const canvas = document.getElementById("renderCanvas");
 const engine = new BABYLON.Engine(canvas, true);
 const { config: envConfig, createStaticBox, initializeEnvironment } = window.EnvCommon;
-const mazeCellSize = 5.6;
-const mazeTargetCellPixels = 173;
-const mazeMinCellsX = 4;
+const mazeCellSize = 5.2;
+const mazeTargetCellPixels = 240;
+const mazeMinCellsX = 5;
 const mazeMinCellsZ = 4;
-const mazeMaxCellsX = 12;
-const mazeMaxCellsZ = 12;
+const mazeMaxCellsX = 20;
+const mazeMaxCellsZ = 16;
 const mazeWallThickness = 0.35;
 const mazeWallHeight = 2.0;
-const groundMargin = 6;
+const groundMargin = 1.4;
+const cameraPadding = 0.9;
 
 function computeMazeDimensions() {
   const viewportWidth = Math.max(canvas.clientWidth, window.innerWidth, 1);
   const viewportHeight = Math.max(canvas.clientHeight, window.innerHeight, 1);
+  const usableWidth = viewportWidth * 0.98;
+  const usableHeight = viewportHeight * 0.98;
 
   const cellsX = Math.max(
     mazeMinCellsX,
-    Math.min(mazeMaxCellsX, Math.floor(viewportWidth / mazeTargetCellPixels)),
+    Math.min(mazeMaxCellsX, Math.round(usableWidth / mazeTargetCellPixels)),
   );
   const cellsZ = Math.max(
     mazeMinCellsZ,
-    Math.min(mazeMaxCellsZ, Math.floor(viewportHeight / mazeTargetCellPixels)),
+    Math.min(mazeMaxCellsZ, Math.round(usableHeight / mazeTargetCellPixels)),
   );
 
   return {
@@ -188,8 +191,8 @@ function createMazeEnvironment({ scene, materials }) {
 
 function configureMazeCamera({ camera, engine: sceneEngine, environment }) {
   const aspect = sceneEngine.getAspectRatio(camera);
-  const halfGroundHeight = environment.groundHeight / 2 + environment.cellSize;
-  const halfGroundWidth = environment.groundWidth / 2 + environment.cellSize;
+  const halfGroundHeight = environment.groundHeight / 2 + cameraPadding;
+  const halfGroundWidth = environment.groundWidth / 2 + cameraPadding;
   const zoom = Math.max(halfGroundHeight, halfGroundWidth / aspect);
 
   camera.orthoTop = zoom;

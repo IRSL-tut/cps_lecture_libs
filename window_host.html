@@ -352,6 +352,14 @@
         updateClientList();
     }
     //// environment
+    function getEnvironmentWindowFeatures() {
+        const popupWidth = Math.max(640, window.outerWidth);
+        const popupHeight = Math.max(480, window.outerHeight);
+        const popupLeft = Math.max(0, window.screenX);
+        const popupTop = Math.max(0, window.screenY);
+
+        return `top=${popupTop},left=${popupLeft},width=${popupWidth},height=${popupHeight},menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=no`;
+    }
     function startObstacles() {
         checkClientList();
         var len = myGlobal.clientCount;
@@ -359,7 +367,7 @@
         var new_w = window.open(
             "./environments/env_obstacles.html",
             tabname,
-            "menubar=no,toolbar=no,location=no"
+            getEnvironmentWindowFeatures()
         );
         myGlobal.clients.set(tabname, new_w);
         myGlobal.clientCount += 1;
@@ -372,7 +380,7 @@
         var new_w = window.open(
             "./environments/env_maze.html",
             tabname,
-            "menubar=no,toolbar=no,location=no"
+            getEnvironmentWindowFeatures()
         );
         myGlobal.clients.set(tabname, new_w);
         myGlobal.clientCount += 1;
