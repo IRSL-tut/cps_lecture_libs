@@ -283,7 +283,7 @@
   }
 
   function updateRaySystem(scene, car, rayLinesMesh) {
-    const rayLength = 100;
+    const rayLength = 1000;
     const nextLines = [];
     const nextColors = [];
     const rawDistances = [];
