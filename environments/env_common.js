@@ -166,7 +166,7 @@
 
   function getHeadingAngle(car) {
     const forwardDirection = car.getDirection(BABYLON.Axis.Z);
-    return Math.atan2(forwardDirection.x, forwardDirection.z);
+    return Math.atan2(forwardDirection.z, forwardDirection.x);
   }
 
   function getGlobalMessageState() {
@@ -241,12 +241,11 @@
     goalOffset.y = 0;
 
     const goalDistance = goalOffset.length();
-    const goalAngle = Math.atan2(goalOffset.x, goalOffset.z);
+    const goalAngle = Math.atan2(goalOffset.z, goalOffset.x);
 
     return {
       car: {
         sensor: distances,
-        direction: headingAngle,
       },
       state: {
         is_goal: goalDistance <= activeConfig.goalRadius,
@@ -254,19 +253,20 @@
       },
       privilegedState: {
         car: {
-          position: [car.position.x, car.position.y, car.position.z],
+          position: [car.position.x, car.position.z, headingAngle],
         },
         goal: {
-          position: [goal.position.x, goal.position.y, goal.position.z],
+          //position: [goal.position.x, goal.position.y, goal.position.z],
+          position: [goal.position.x, goal.position.z],
         },
       },
     };
   }
 
   function applyCarControls(car, keys, activeConfig, commandState = { vx: 0, vy: 0, vtheta: 0 }) {
-    const moveForward = (keys.w ? 1 : 0) - (keys.s ? 1 : 0) + commandState.vy;
+    const moveForward  = (keys.w ? 1 : 0) - (keys.s ? 1 : 0) + commandState.vy;
     const moveSideways = (keys.d ? 1 : 0) - (keys.a ? 1 : 0) + commandState.vx;
-    const turnInput = (keys.e ? 1 : 0) - (keys.q ? 1 : 0) + commandState.vtheta;
+    const turnInput    = (keys.q ? 1 : 0) - (keys.e ? 1 : 0) + commandState.vtheta;
 
     const rightDirection = car.getDirection(BABYLON.Axis.X);
     const forwardDirection = car.getDirection(BABYLON.Axis.Z);
@@ -278,7 +278,7 @@
       car.physicsBody.applyImpulse(impulseDirection, car.position);
     }
 
-    car.physicsBody.setAngularVelocity(new BABYLON.Vector3(0, turnInput * activeConfig.carTurnSpeed, 0));
+    car.physicsBody.setAngularVelocity(new BABYLON.Vector3(0, -turnInput * activeConfig.carTurnSpeed, 0));
     clampHorizontalVelocity(car.physicsBody, activeConfig.carMaxSpeed);
   }
 
@@ -289,7 +289,8 @@
     const rawDistances = [];
 
     for (let i = 0; i < 8; i++) {
-      const localRayDirection = new BABYLON.Vector3(Math.sin(i * (Math.PI / 4)), 0, Math.cos(i * (Math.PI / 4)));
+      const localRayAngle = -i * (Math.PI / 4);
+      const localRayDirection = new BABYLON.Vector3(Math.sin(localRayAngle), 0, Math.cos(localRayAngle));
       const direction = car.getDirection(localRayDirection);
 
       const rayOrigin = car.position.clone();
