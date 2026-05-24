@@ -264,8 +264,8 @@
   }
 
   function applyCarControls(car, keys, activeConfig, commandState = { vx: 0, vy: 0, vtheta: 0 }) {
-    const moveForward  = (keys.w ? 1 : 0) - (keys.s ? 1 : 0) + commandState.vy;
-    const moveSideways = (keys.d ? 1 : 0) - (keys.a ? 1 : 0) + commandState.vx;
+    const moveForward  = (keys.w ? 1 : 0) - (keys.s ? 1 : 0) + commandState.vx;
+    const moveSideways = (keys.d ? 1 : 0) - (keys.a ? 1 : 0) + commandState.vy;
     const turnInput    = (keys.q ? 1 : 0) - (keys.e ? 1 : 0) + commandState.vtheta;
 
     const rightDirection = car.getDirection(BABYLON.Axis.X);
