@@ -19,12 +19,16 @@ function end_with() {
 }
 function write_string(str) {
   var elm = document.getElementById("console-string");
-  elm.value += str;
+  if (elm) {
+    elm.value += str;
+  }
   console.log(str);
 }
 function write_clear() {
   var elm = document.getElementById("console-string");
-  elm.value = "";
+  if (elm) {
+      elm.value = "";
+  }
 }
 function set_enable_highlight(enable) {
   myGloabl.enableHighlight = enable;

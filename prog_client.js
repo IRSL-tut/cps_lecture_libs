@@ -388,6 +388,7 @@ function initializeProgEnvironment(myGlobal) {
     Blockly.JavaScript.STATEMENT_PREFIX = addHighlight ? 'progFuncs.highlightBlock(%1);\n' : null;
     const code = Blockly.JavaScript.workspaceToCode(myGlobal.blockly_workspace);
     Blockly.JavaScript.STATEMENT_PREFIX = null;
+    console.log(code);
     return code;
   };
 
@@ -620,7 +621,6 @@ function initializeProgEnvironment(myGlobal) {
       return;
     }
     console.log('runStopButton: run');
-    console.log(progFuncs);
     myGlobal.runBlocks();
   });
 
