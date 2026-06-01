@@ -179,6 +179,8 @@ const startRelativeOrientation = () => {
   sensor.addEventListener("reading", () => {
     setText("relQuat", fmtQuat(sensor.quaternion));
     setText("relT", fmt(sensor.timestamp, "ms"));
+    //
+    myGlobal.BM.msg_pool.publish('rel_quat', [sensor.quaternion[0], sensor.quaternion[1], sensor.quaternion[2], sensor.quaternion[3], sensor.timestamp]);
   });
   sensor.addEventListener("error", (event) => {
     statusEl.textContent = `Rel orientation error: ${event.error?.message || "unknown"}`;
