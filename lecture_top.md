@@ -19,7 +19,7 @@ Any questions should be sent to cps-lecture-staff@irsl.eiiris ( End with .tut.ac
 ### WebSocket ホスト
 
 使い方
-https://github.com/IRSL-tut/cps_lecture_libs/blob/main/js/README.md
+[https://github.com/IRSL-tut/cps_lecture_libs/blob/main/js/README.md](https://github.com/IRSL-tut/cps_lecture_libs/blob/main/js/README.md)
 
 ### WebSocket クライアント
 

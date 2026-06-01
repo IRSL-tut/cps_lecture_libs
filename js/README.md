@@ -1,53 +1,60 @@
-# メインディレクトリ
+# WebSocketサーバー
+
+## メインディレクトリ
 
 [cps_lecture_libs](https://github.com/IRSL-tut/cps_lecture_libs) ディレクトリにて行う
 
-## cps_lecture_libs ディレクトリの作成
+### cps_lecture_libs ディレクトリの作成
 
 ```
 git clone https://github.com/IRSL-tut/cps_lecture_libs
 ```
 
-# Nodeの導入
+## Nodeの導入
 
-Nodeのサイト: https://nodejs.org/ja/download
+Nodeのサイト: [https://nodejs.org/ja/download](https://nodejs.org/ja/download)
 
 Windowsの場合は、スタンドアローンのバイナリー(.zip)をお勧め
 ( 全体にインストールするならインストーラーでも良い )
 
-ダウンロードしたZIPファイルを <node_directory> に解凍
+ダウンロードしたZIPファイルを `<node_directory>` に解凍
 
-<node_directory>は cps_lecture_libs の下のどこかに配置するのが良い
+`<node_directory>`は `cps_lecture_libs` の下のどこかに配置するのが良い
 
-## 必要なパッケージのダウンロード
+
+### 必要なパッケージのダウンロード
+
 ```
 <node_directory>\npm install vite ws
 ```
 
-# 認証ファイルを作成
+## 認証ファイルを作成
 
-## windowsで行う
+
+### windowsで行う
+
 windowsならgitbashを使用
-( gitbash は windowsのgitをインストールしたら入ります)
+( gitbash は windowsのgitをインストールしたら入る )
 
 ```
 cd js
 ./make_pem.sh
 ```
 
-WSLを使うことも可能かと思います。(opensslパッケージが必要)
+WSLを使うことも可能。(opensslパッケージが必要)
 
-## Linuxで行う
+
+### Linuxで行う
 
 IMCに入る
 
-- ydev.imc.tut.ac.jp に入る
-- git clone https://github.com/IRSL-tut/cps_lecture_libs
-- js/make_pem.sh
-- key.pem, cert.pem をwindowsへ持ってくる
+- `ydev.imc.tut.ac.jp` に入る
+- `git clone https://github.com/IRSL-tut/cps_lecture_libs`
+- `js/make_pem.sh` を実行
+- `key.pem`, `cert.pem` をwindowsへ持ってくる
 
 
-# Websocket server
+## Websocket server
 
 [cps_lecture_libs](https://github.com/IRSL-tut/cps_lecture_libs) ディレクトリにて
 
@@ -58,7 +65,8 @@ cd js
 
 ポートが使用中などのエラーになったらポート番号を変える
 
-# Local web site
+
+## Local web site
 
 ファイルの変更をテストしたいとき
 
@@ -74,4 +82,6 @@ cd js
   ➜  Network: https://XXX.YYY.ZZZ.WWW:5173/
 ```
 
-XXX.YYY.ZZZ.WWWは自身のIPアドレス
+`XXX.YYY.ZZZ.WWW`は自身のIPアドレス
+
+Windowsでは ipconfig コマンドで確認できる
