@@ -18,17 +18,18 @@ Any questions should be sent to cps-lecture-staff@irsl.eiiris ( End with .tut.ac
 
 ### WebSocket ホスト
 
-under construction
+使い方
+https://github.com/IRSL-tut/cps_lecture_libs/blob/main/js/README.md
 
 ### WebSocket クライアント
 
-[ ビジュアルプログラミング環境/トップ ](./websocket_host.html)
+[ WebSocket通信環境環境/トップ ](./web_host.html)
 
 ### 直接アクセスする方法
 
 #### プログラミング環境
 
-プログラミング環境 prog_client.html
+[プログラミング環境](prog_client.html)
 
 #### デバイス
 
@@ -45,6 +46,14 @@ under construction
 - 振動
 [https://irsl-tut.github.io/CPS-lecture/cps_lecture_libs/devices/vibration.html](devices/vibration.html)
 
+
+#### (ゲーム)環境
+
+- ランダム障害物環境
+[https://irsl-tut.github.io/CPS-lecture/cps_lecture_libs/environments/env_obstacles.html](./environments/env_obstacles.html)
+
+- 迷路環境
+[https://irsl-tut.github.io/CPS-lecture/cps_lecture_libs/environments/env_maze.html](./environments/env_maze.html)
 
 ## サンプルプログラム(ブロック)
 
@@ -104,6 +113,3 @@ under construction
 [仮想ジョイスティックを使う](samples/devices/use_joy.xml)
 
 
-### (ゲーム)環境
-
-under construction
